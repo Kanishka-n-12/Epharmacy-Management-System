@@ -1,0 +1,229 @@
+
+/* ── Overlay ── */
+.detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlayIn 0.2s ease;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Modal box ── */
+.detail-modal {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalIn 0.25s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Header ── */
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 22px 14px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-order-id {
+  font-size: 15px;
+  font-weight: 700;
+  color: #52a468;
+  margin: 0 0 6px;
+}
+
+.detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: #888;
+}
+
+.payment-badge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  background: #f0f0f0;
+  color: #666;
+}
+
+.pay-paid    { background: #e9f7ef; color: #1e8449; }
+.pay-pending { background: #fff3cd; color: #b78103; }
+.pay-failed  { background: #fdecea; color: #c0392b; }
+
+.detail-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #888;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.detail-close:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+/* ── Body ── */
+.detail-body {
+  padding: 16px 22px 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.detail-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 10px;
+}
+
+/* ── Item rows ── */
+.detail-item-row {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f4f4f4;
+}
+
+.detail-item-row:last-of-type {
+  border-bottom: none;
+}
+
+.detail-item-img {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fafafa;
+  overflow: hidden;
+}
+
+.detail-item-img img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  padding: 4px;
+}
+
+.detail-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 3px;
+}
+
+.detail-item-qty {
+  font-size: 11px;
+  color: #aaa;
+}
+
+.detail-item-price {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* ── Summary ── */
+.detail-summary {
+  background: #f0f7f1;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #555;
+}
+
+.total-row {
+  font-weight: 700;
+  color: #222;
+  border-top: 1px dashed #cde6d3;
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+.total-row span:last-child {
+  color: #52a468;
+}
+
+/* ── Cancel inside modal ── */
+.detail-cancel-wrap {
+  margin-top: 16px;
+  text-align: right;
+}
+
+.detail-cancel-wrap .btn-cancel-order {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 18px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  color: #dc3545;
+  background: #fff5f5;
+  border: 1.5px solid #f5c2c7;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+}
+
+.detail-cancel-wrap .btn-cancel-order:hover {
+  background: #dc3545;
+  color: #fff;
+  border-color: #dc3545;
+}
+
+/* ── Responsive ── */
+@media (max-width: 580px) {
+  .detail-modal {
+    margin: 0 12px;
+    max-height: 95vh;
+  }
+}

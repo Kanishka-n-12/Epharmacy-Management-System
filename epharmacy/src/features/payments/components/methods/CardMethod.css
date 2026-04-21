@@ -1,0 +1,19 @@
+.card-form { display: flex; flex-direction: column; gap: 8px; padding-top: 6px; }
+.card-type-tabs { display: flex; gap: 8px; margin-bottom: 4px; }
+.tab-btn {
+  flex: 1; padding: 8px; border: 1.5px solid #e0e0e0;
+  border-radius: 7px; background: #fff; font-size: 12px;
+  font-weight: 600; cursor: pointer; transition: all 0.2s;
+  font-family: 'Poppins', sans-serif;
+}
+.tab-btn.active { border-color: #52a468; background: #f0f7f1; color: #52a468; }
+.card-input {
+  width: 100%; border: 1.5px solid #e0e0e0;
+  border-radius: 7px; padding: 9px 13px;
+  font-size: 13px; font-family: 'Poppins', sans-serif;
+  outline: none; transition: border-color 0.2s;
+}
+.card-input:focus { border-color: #52a468; box-shadow: 0 0 0 3px rgba(82,164,104,0.15); }
+.card-input.is-invalid { border-color: #e53935; background: #fff8f8; }
+.card-row-2 { display: flex; gap: 10px; }
+.field-err { font-size: 11px; font-weight: 600; color: #e53935; }

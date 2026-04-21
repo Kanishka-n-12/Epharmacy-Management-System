@@ -1,0 +1,22 @@
+.empty-addresses {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.empty-addresses .icon {
+  font-size: 44px;
+  margin-bottom: 12px;
+}
+
+.empty-addresses h6 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 6px;
+}
+
+.empty-addresses p {
+  font-size: 13px;
+  margin: 0;
+}

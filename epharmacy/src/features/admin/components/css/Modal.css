@@ -1,0 +1,134 @@
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-modal {
+  background: var(--white, #ffffff);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: adminModalFadeUp 0.25s ease;
+  position: relative;
+  z-index: 10000;
+}
+
+.admin-modal-sm { max-width: 400px; }
+.admin-modal-md { max-width: 540px; }
+.admin-modal-lg { max-width: 680px; }
+
+.admin-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 14px;
+  border-bottom: 1px solid var(--border, #efefef);
+  position: sticky;
+  top: 0;
+  background: var(--white, #ffffff);
+  z-index: 1;
+}
+
+.admin-modal-title-txt {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--green-dark, #438a56);
+}
+
+.admin-modal-close {
+  background: var(--body-bg, #fcfcfc);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted, #888);
+  transition: all 0.15s;
+  border: none;
+  cursor: pointer;
+}
+
+.admin-modal-close:hover {
+  background: #f8d7da;
+  color: var(--red, #f44336);
+}
+
+.admin-modal-body {
+  padding: 20px 24px;
+}
+
+.admin-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 24px;
+  border-top: 1px solid var(--border, #efefef);
+}
+
+.admin-modal-footer .btn-cancel {
+  background: var(--body-bg, #fcfcfc);
+  border: 1.5px solid #ddd;
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-mid, #555);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.admin-modal-footer .btn-cancel:hover { background: #e8e8e8; }
+
+.admin-modal-footer .btn-save {
+  background: var(--green, #52a468);
+  color: #fff;
+  padding: 9px 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+
+.admin-modal-footer .btn-save:hover:not(:disabled) { background: var(--green-dark, #438a56); }
+.admin-modal-footer .btn-save:disabled { opacity: 0.65; cursor: not-allowed; }
+
+.admin-modal-footer .btn-danger {
+  background: var(--red, #f44336);
+  color: #fff;
+  padding: 9px 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+
+.admin-modal-footer .btn-danger:hover { background: #d32f2f; }
+
+@keyframes adminModalFadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .admin-modal-footer { flex-direction: column-reverse; }
+  .admin-modal-footer .btn-cancel,
+  .admin-modal-footer .btn-save,
+  .admin-modal-footer .btn-danger { width: 100%; text-align: center; }
+}

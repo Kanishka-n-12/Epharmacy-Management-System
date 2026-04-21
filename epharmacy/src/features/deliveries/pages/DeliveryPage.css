@@ -1,0 +1,189 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap");
+
+
+:root {
+  --green-dark:   #1b5e20;
+  --green-main:   #2e7d32;
+  --green-mid:    #388e3c;
+  --green-light:  #e8f5e9;
+  --green-pale:   #f1f8f2;
+  --red-main:     #e53935;
+  --blue-main:    #1565c0;
+  --blue-light:   #e3f0fb;
+  --orange-main:  #e65100;
+  --orange-light: #fff3e0;
+  --text-primary: #1a1a1a;
+  --text-muted:   #6b7280;
+  --text-light:   #9ca3af;
+  --border:       #e5e7eb;
+  --border-focus: #2e7d32;
+  --bg-white:     #ffffff;
+  --bg-page:      #f5f7f5;
+  --shadow-sm:    0 1px 4px rgba(0, 0, 0, 0.07);
+  --shadow-card:  0 4px 18px rgba(0, 0, 0, 0.09);
+  --radius-sm:    8px;
+  --radius-md:    12px;
+  --radius-lg:    16px;
+  --font-main:    "DM Sans", sans-serif;
+  --font-mono:    "DM Mono", monospace;
+  --transition:   0.2s ease;
+}
+
+/* ── Page shell ── */
+.delivery-page {
+  font-family: var(--font-main);
+  background: var(--bg-page);
+  min-height: 100vh;
+  padding: 32px 0 60px;
+  color: var(--text-primary);
+}
+
+/* ── Two-column grid ── */
+.delivery-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .delivery-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Generic card wrapper ── */
+.dp-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+}
+
+/* ── Section title with trailing rule ── */
+.dp-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dp-section-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Add new address button ── */
+.btn-add-address {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px;
+  border: 2px dashed var(--green-main);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--green-main);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-main);
+  cursor: pointer;
+  transition: background var(--transition);
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+
+.btn-add-address:hover {
+  background: var(--green-light);
+}
+
+/* ── Back button ── */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green-main);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 20px;
+  font-family: var(--font-main);
+  transition: gap var(--transition);
+}
+
+.btn-back:hover { gap: 10px; }
+
+/* ── Toast notification ── */
+.dp-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1b5e20;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  z-index: 2000;
+  animation: toastIn 0.25s ease;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(14px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.dp-toast.error { background: var(--red-main); }
+
+/* ── Category tabs (reserved for future use) ── */
+.addr-category-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.addr-cat-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 0.5px solid var(--color-border-tertiary, #ddd);
+  background: transparent;
+  font-size: 13px;
+  cursor: pointer;
+  color: #666;
+}
+
+.addr-cat-tab.active {
+  background: #e1f5ee;
+  border-color: #1d9e75;
+  color: #0f6e56;
+  font-weight: 500;
+}
+
+.tab-count {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 11px;
+}
+
+.addr-cat-tab.active .tab-count {
+  background: #0f6e56;
+  color: #fff;
+}

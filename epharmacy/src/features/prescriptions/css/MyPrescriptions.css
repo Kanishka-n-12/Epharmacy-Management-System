@@ -1,0 +1,171 @@
+/* features/prescriptions/css/MyPrescriptions.css */
+
+.my-prescriptions-page {
+  min-height: 100vh;
+  background: #f5f7f5;
+}
+
+/* ── Breadcrumb ── */
+.prescriptions-breadcrumb {
+  background: #fff;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 12px;
+  color: #888;
+}
+.prescriptions-breadcrumb a { color: #888; text-decoration: none; }
+.prescriptions-breadcrumb a:hover { text-decoration: underline; }
+.prescriptions-breadcrumb .sep   { color: #bbb; }
+.prescriptions-breadcrumb .active { color: #52a468; font-weight: 600; }
+
+/* ── Main ── */
+.prescriptions-main { padding: 28px 0 44px; }
+
+/* ── Layout ── */
+.prescriptions-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 768px) {
+  .prescriptions-layout { grid-template-columns: 1fr; }
+}
+
+/* ── Card ── */
+.prescriptions-card {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #efefef;
+  box-shadow: 0 4px 16px rgba(82, 164, 104, 0.08);
+  padding: 20px 24px 28px;
+  animation: rxSlideUp 0.4s 0.1s ease both;
+  min-height: 300px;
+}
+
+@keyframes rxSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Card Header ── */
+.prescriptions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.prescriptions-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+.rx-upload-btn {
+  background: #52a468;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 18px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.4px;
+  transition: background 0.2s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rx-upload-btn:hover { background: #438a56; transform: translateY(-2px); }
+
+/* ── Table cell helpers ── */
+.rx-filename-cell {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rx-tbl-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rx-btn-view {
+  background: #f0f7f1;
+  color: #52a468;
+  border: 1px solid #d4ecd9;
+  border-radius: 7px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.rx-btn-view:hover { background: #e0f0e4; }
+
+.rx-btn-delete {
+  background: none;
+  border: 1px solid #f0f0f0;
+  border-radius: 7px;
+  padding: 4px 9px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.rx-btn-delete:hover { background: #fff0f0; border-color: #f44336; }
+
+/* ── Status badges ── */
+.rx-status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+.rx-badge-approved { background: #e8f5e9; color: #2e7d32; }
+.rx-badge-pending  { background: #fff3e0; color: #e07b2a; }
+.rx-badge-rejected { background: #fdecea; color: #e53935; }
+
+/* ── Modal Overlay ── */
+.detail-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* ── Modal Box ── */
+.detail-modal {
+  background: #fff;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  animation: fadeIn 0.3s ease;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

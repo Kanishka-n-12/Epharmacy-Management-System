@@ -1,0 +1,243 @@
+/* features/profile/components/css/AddressModal.css */
+
+/* ── Overlay ── */
+.addr-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlayIn 0.2s ease;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Modal box ── */
+.addr-modal {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalIn 0.25s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Header ── */
+.addr-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.addr-modal-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.addr-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #888;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.addr-close:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+/* ── Body ── */
+.addr-modal-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ── Field groups ── */
+.addr-field {
+  margin-bottom: 12px;
+}
+
+.addr-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.addr-select,
+.addr-input {
+  width: 100%;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #333;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.addr-textarea {
+  width: 100%;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #333;
+  background: #fff;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.addr-select:focus,
+.addr-input:focus,
+.addr-textarea:focus {
+  border-color: #52a468;
+  box-shadow: 0 0 0 3px rgba(82, 164, 104, 0.15);
+}
+
+.addr-select.is-invalid,
+.addr-input.is-invalid,
+.addr-textarea.is-invalid {
+  border-color: #f44336;
+  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
+}
+
+.addr-err {
+  display: block;
+  font-size: 11px;
+  color: #f44336;
+  font-weight: 500;
+  margin-top: 3px;
+}
+
+/* ── Two-column row ── */
+.addr-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── Saved Addresses ── */
+.saved-addresses {
+  margin-top: 4px;
+}
+
+.saved-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.saved-addr-item {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  position: relative;
+}
+
+.addr-type-badge {
+  display: inline-block;
+  background: #198754;
+  color: #fff;
+  border-radius: 4px;
+  padding: 1px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.addr-delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.addr-delete-btn:hover {
+  background: #fee2e2;
+}
+
+.addr-text {
+  margin: 4px 0 0;
+  color: #444;
+  line-height: 1.5;
+}
+
+/* ── Footer ── */
+.addr-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 20px 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.addr-save-btn {
+  background: #198754;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 22px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, transform 0.15s;
+  min-width: 110px;
+  text-align: center;
+}
+
+.addr-save-btn:hover {
+  background: #146c43;
+  transform: translateY(-1px);
+}
+
+/* ── Responsive ── */
+@media (max-width: 520px) {
+  .addr-modal {
+    margin: 0 12px;
+    max-height: 95vh;
+  }
+
+  .addr-row {
+    grid-template-columns: 1fr;
+  }
+}

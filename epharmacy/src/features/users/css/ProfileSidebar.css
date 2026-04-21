@@ -1,0 +1,115 @@
+/* features/profile/components/css/ProfileSidebar.css */
+
+.profile-sidebar {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #efefef;
+  box-shadow: 0 4px 16px rgba(82, 164, 104, 0.08);
+  overflow: hidden;
+  animation: sidebarSlideUp 0.4s ease both;
+}
+
+@keyframes sidebarSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Avatar ── */
+.sidebar-avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 22px 16px 12px;
+  background: #f0f7f1;
+}
+
+.sidebar-avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 3px solid #52a468;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sidebar-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sidebar-name {
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+}
+
+/* ── Promo ── */
+.sidebar-promo {
+  background: #52a468;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  padding: 8px 12px;
+  line-height: 1.5;
+  letter-spacing: 0.3px;
+}
+
+/* ── Nav ── */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #444;
+  text-decoration: none;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.15s, color 0.15s;
+  letter-spacing: 0.3px;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.sidebar-link:last-child {
+  border-bottom: none;
+}
+
+.sidebar-link:hover {
+  background: #f0f7f1;
+  color: #52a468;
+}
+
+.sidebar-link.active {
+  background: #f0f7f1;
+  color: #52a468;
+  border-left: 3px solid #52a468;
+}
+
+.logout-link {
+  color: #e53935;
+}
+
+.logout-link:hover {
+  background: #fff5f5;
+  color: #f44336;
+}
+
+.logout-arrow {
+  font-size: 14px;
+}

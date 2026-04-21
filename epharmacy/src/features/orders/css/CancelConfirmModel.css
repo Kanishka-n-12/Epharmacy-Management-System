@@ -1,0 +1,140 @@
+
+
+.cancel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1060;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlayIn 0.2s ease;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.cancel-modal {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  width: 100%;
+  max-width: 400px;
+  overflow: hidden;
+  animation: modalIn 0.22s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.cancel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cancel-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #dc3545;
+  margin: 0;
+}
+
+.cancel-close {
+  background: none;
+  border: none;
+  font-size: 15px;
+  color: #888;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.cancel-close:hover {
+  background: #f5f5f5;
+}
+
+.cancel-body {
+  padding: 16px 20px;
+}
+
+.cancel-msg {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.cancel-order-id {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.cancel-warning {
+  font-size: 11px;
+  color: #aaa;
+  margin: 0;
+}
+
+.cancel-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 20px 18px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.btn-keep {
+  height: 34px;
+  padding: 0 18px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  color: #555;
+  background: #fff;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-keep:hover {
+  background: #f5f5f5;
+}
+
+.btn-keep:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-confirm-cancel {
+  height: 34px;
+  padding: 0 18px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  background: #dc3545;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  min-width: 100px;
+}
+
+.btn-confirm-cancel:hover:not(:disabled) {
+  background: #b02a37;
+}
+
+.btn-confirm-cancel:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

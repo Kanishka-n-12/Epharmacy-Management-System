@@ -1,0 +1,206 @@
+.pm-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.pm-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pm-section-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Card ── */
+.pm-card {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  cursor: pointer;
+  position: relative;
+  margin-bottom: 12px;
+  transition: border-color var(--transition), box-shadow var(--transition),
+    background var(--transition);
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.pm-card:hover {
+  border-color: var(--green-mid);
+  box-shadow: 0 2px 10px rgba(46, 125, 50, 0.1);
+}
+
+.pm-card.selected {
+  border-color: var(--green-main);
+  background: var(--green-pale);
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+/* ── Radio ── */
+.pm-radio {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color var(--transition);
+}
+
+.pm-card.selected .pm-radio {
+  border-color: var(--green-main);
+}
+
+.pm-radio-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--green-main);
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.pm-card.selected .pm-radio-dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── Selected check badge ── */
+.pm-check {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 22px;
+  height: 22px;
+  background: var(--green-main);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.pm-card.selected .pm-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.pm-check svg {
+  width: 13px;
+  height: 13px;
+  stroke: #fff;
+  stroke-width: 2.5;
+  fill: none;
+}
+
+/* ── Card body ── */
+.pm-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.pm-card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.pm-card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pm-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ── Badges ── */
+.pm-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+}
+
+.pm-badge.secure {
+  background: var(--green-light);
+  color: var(--green-dark);
+}
+
+.pm-badge.cod {
+  background: var(--orange-light);
+  color: var(--orange-main);
+}
+
+/* ── Razorpay logo ── */
+.pm-razorpay-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+
+.pm-cod-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.pm-card-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+
+/* ── Feature chips inside Razorpay card ── */
+.pm-features-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pm-feature-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.pm-card.selected .pm-feature-chip {
+  background: var(--green-light);
+  border-color: #a5d6a7;
+  color: var(--green-dark);
+}

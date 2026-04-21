@@ -1,0 +1,23 @@
+.razorpay-info {
+  background: #f0f7f1; border: 1.5px solid #52a468;
+  border-radius: 8px; padding: 10px 14px; margin-bottom: 12px;
+}
+.razorpay-info p { font-size: 12.5px; color: #444; margin: 0; }
+.method-list { display: flex; flex-direction: column; gap: 8px; }
+.method-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border: 1.5px solid #e0e0e0;
+  border-radius: 8px; cursor: pointer; background: #fff;
+  transition: border-color 0.2s, background 0.2s;
+}
+.method-item:hover { border-color: #52a468; background: #f0f7f1; }
+.method-item.selected { border-color: #52a468; background: #f0f7f1; }
+.method-name { font-size: 13px; font-weight: 500; flex: 1; color: #333; }
+.method-radio {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid #ccc; display: flex; align-items: center;
+  justify-content: center; font-size: 8px; color: transparent;
+  flex-shrink: 0; transition: all 0.2s;
+}
+.method-radio.checked { border-color: #52a468; background: #52a468; color: #fff; }
+.field-err { font-size: 11px; font-weight: 600; color: #e53935; display: block; margin-top: 3px; }

@@ -1,0 +1,32 @@
+.bill-card {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #efefef;
+  box-shadow: 0 4px 16px rgba(82,164,104,0.08);
+  padding: 24px;
+  position: sticky;
+  top: 20px;
+}
+.bill-card.skeleton { min-height: 200px; }
+.section-title {
+  font-size: 14px; font-weight: 700; color: #52a468;
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 18px;
+}
+.bill-row {
+  display: flex; justify-content: space-between;
+  font-size: 13px; color: #555; margin-bottom: 12px;
+}
+.bill-row .label { font-weight: 500; }
+.bill-row .value { font-weight: 600; }
+.bill-divider { border-top: 1px dashed #e0e0e0; margin: 10px 0 14px; }
+.bill-row.total-row .label { font-weight: 700; color: #222; font-size: 14px; }
+.bill-row.total-row .total-val { color: #f44336; font-weight: 700; font-size: 14px; }
+.btn-pay-summary {
+  width: 100%; margin-top: 18px; padding: 12px;
+  background: #52a468; color: #fff; border: none;
+  border-radius: 25px; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: background 0.2s, transform 0.15s;
+  font-family: 'Poppins', sans-serif;
+}
+.btn-pay-summary:hover:not(:disabled) { background: #438a56; transform: translateY(-2px); }
+.btn-pay-summary:disabled { opacity: 0.65; cursor: not-allowed; }

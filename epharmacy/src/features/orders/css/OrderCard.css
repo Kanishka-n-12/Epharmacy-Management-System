@@ -1,0 +1,228 @@
+
+
+.order-card {
+  border: 1.5px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  animation: orderFadeIn 0.3s ease both;
+  background: #fff;
+}
+
+.order-card:hover {
+  box-shadow: 0 6px 20px rgba(82, 164, 104, 0.12);
+  border-color: #52a468;
+}
+
+.order-card:last-child {
+  margin-bottom: 0;
+}
+
+@keyframes orderFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Top row ── */
+.order-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.order-id {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+}
+
+.order-date {
+  font-size: 11px;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+.order-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Payment badge */
+.payment-badge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  background: #f0f0f0;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.pay-paid    { background: #e9f7ef; color: #1e8449; }
+.pay-pending { background: #fff3cd; color: #b78103; }
+.pay-failed  { background: #fdecea; color: #c0392b; }
+
+/* ── Item rows ── */
+.item-row {
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.item-row:last-of-type {
+  margin-bottom: 0;
+}
+
+.item-img {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fafafa;
+  overflow: hidden;
+}
+
+.item-img img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  padding: 4px;
+}
+
+.item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.item-qty {
+  font-size: 11px;
+  color: #aaa;
+}
+
+.item-price {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.extra-items {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+/* ── Bottom row ── */
+.order-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed #eee;
+}
+
+.order-total {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+}
+
+.order-total span {
+  color: #52a468;
+}
+
+/* ── Action buttons ── */
+.order-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.btn-cancel-order {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 14px;
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  color: #dc3545;
+  background: #fff5f5;
+  border: 1.5px solid #f5c2c7;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1;
+  letter-spacing: 0.3px;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+}
+
+.btn-cancel-order:hover {
+  background: #dc3545;
+  color: #fff;
+  border-color: #dc3545;
+}
+
+.btn-view-details {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 16px;
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  color: #52a468;
+  background: none;
+  border: 1.5px solid #52a468;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1;
+  letter-spacing: 0.3px;
+  transition: background 0.18s, color 0.18s;
+}
+
+.btn-view-details:hover {
+  background: #52a468;
+  color: #fff;
+}
+
+/* ── Responsive ── */
+@media (max-width: 576px) {
+  .item-row {
+    grid-template-columns: 46px 1fr auto;
+  }
+
+  .order-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .order-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
