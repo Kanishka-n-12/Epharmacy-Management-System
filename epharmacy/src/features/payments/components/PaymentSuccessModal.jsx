@@ -1,6 +1,8 @@
 import "../css/PaymentSuccessModal.css";
+import { useNavigate } from "react-router-dom";
 
 export default function PaymentSuccessModal({ orderId, amount, method, onGoHome }) {
+  const navigate = useNavigate();
   return (
     <div className="popup-overlay show">
       <div className="success-popup">
@@ -29,7 +31,7 @@ export default function PaymentSuccessModal({ orderId, amount, method, onGoHome 
           </strong>
         </div>
 
-        <button className="btn-go-home" onClick={onGoHome}>
+        <button className="btn-go-home" onClick={()=> navigate("/")}>
           Go to Home
         </button>
       </div>

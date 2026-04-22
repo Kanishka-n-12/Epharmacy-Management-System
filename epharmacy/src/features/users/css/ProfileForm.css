@@ -1,5 +1,3 @@
-/* features/profile/components/css/ProfileForm.css */
-
 .profile-card {
   background: #fff;
   border-radius: 14px;
@@ -25,7 +23,6 @@
   min-width: 0;
 }
 
-/* ── Field Groups ── */
 .field-group {
   margin-bottom: 14px;
 }
@@ -74,7 +71,7 @@
 }
 
 .err {
-  display: none;
+  display: block;
   font-size: 11px;
   color: #f44336;
   font-weight: 500;
@@ -85,7 +82,7 @@
   display: block;
 }
 
-/* ── Gender Radio ── */
+
 .gender-group {
   display: flex;
   align-items: center;

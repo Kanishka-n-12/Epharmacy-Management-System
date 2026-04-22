@@ -170,7 +170,6 @@ function showToast(msg, error = false) {
         <td className="td-num">{start + index + 1}</td>
         <td className="td-name">{cat.name}</td>
         <td>
-          {/* ── shared StatusBadge ── */}
           <StatusBadge status={cat.status} preset="user" />
         </td>
         <td><ActionMenu actions={actions} /></td>
