@@ -1,4 +1,4 @@
-import "./PaymentSuccessModal.css";
+import "../css/PaymentSuccessModal.css";
 
 export default function PaymentSuccessModal({ orderId, amount, method, onGoHome }) {
   return (

@@ -1,4 +1,4 @@
-// pages/admin/MedicineManagementPage.jsx
+
 import AdminLayout    from "../layouts/AdminLayout";
 import StatisticsCard from "../components/StatisticsCard";
 import DataTable      from "../components/DataTable";
@@ -82,35 +82,107 @@ function todayISO() { return new Date().toISOString().split("T")[0]; }
 
 function validateMedForm(form, isEdit) {
   const e = {};
-  if (!form.name.trim()) { e.name = "Medicine name is required."; }
-  else if (form.name.trim().length < 2 || form.name.trim().length > 100) { e.name = "Name must be 2–100 characters."; }
-  else if (!/^[A-Za-z0-9 ]{2,100}$/.test(form.name.trim())) { e.name = "Name can only contain letters, numbers and spaces."; }
-  if (!isEdit) {
-    if (!form.brand.trim()) { e.brand = "Brand name is required."; }
-    else if (!/^[A-Za-z ]{2,100}$/.test(form.brand.trim())) { e.brand = "Brand must be 2–100 letters only, no numbers."; }
-    if (!form.composition.trim()) { e.composition = "Composition is required."; }
-    else if (!/^[A-Za-z0-9+., ]{3,255}$/.test(form.composition.trim())) { e.composition = "Use letters, numbers and + . , only (min 3 chars)."; }
-    if (!form.strength.trim()) { e.strength = "Strength is required (e.g. 500mg, 5ml, 1g)."; }
-    else if (!/^\d+(mg|ml|g)$/i.test(form.strength.trim())) { e.strength = "Format must be like 500mg, 5ml or 1g."; }
+
+  if (!form.name.trim()) {
+    e.name = "Medicine name is required.";
+  } else if (form.name.trim().length < 2 || form.name.trim().length > 50) {
+    e.name = "Name must be 2–50 characters.";
+  } else if (!/^[A-Za-z0-9 ]{2,50}$/.test(form.name.trim())) {
+    e.name = "Name can only contain letters, numbers and spaces.";
   }
-  if (form.price === "" || form.price === null || form.price === undefined) { e.price = "Price is required."; }
-  else if (isNaN(form.price) || Number(form.price) <= 0) { e.price = "Price must be a number greater than 0."; }
-  if (form.taxPercentage !== "") { const t = Number(form.taxPercentage); if (isNaN(t) || t < 0 || t > 99) { e.taxPercentage = "Tax must be between 0 and 99."; } }
-  if (form.discountPercentage !== "") { const d = Number(form.discountPercentage); if (isNaN(d) || d < 0 || d > 99) { e.discountPercentage = "Discount must be between 0 and 99."; } }
-  if (!isEdit && !form.categoryId) { e.categoryId = "Category is required."; }
-  if (form.manufacturerId !== "") { if (isNaN(form.manufacturerId) || Number(form.manufacturerId) <= 0) { e.manufacturerId = "Enter a valid positive manufacturer ID."; } }
-  else if (!isEdit) { e.manufacturerId = "Manufacturer ID is required."; }
-  if (!isEdit && !form.scheduleType) { e.scheduleType = "Schedule type is required."; }
-  if (!isEdit && !form.dosageForm) { e.dosageForm = "Dosage form is required."; }
-  else if (form.dosageForm && !["tablet","syrup","injection"].includes(form.dosageForm.toLowerCase())) { e.dosageForm = "Select a valid dosage form (Tablet, Syrup or Injection)."; }
+
   if (!isEdit) {
-    if (!form.storageInstructions.trim()) { e.storageInstructions = "Storage instructions are required."; }
-    else if (!/^[A-Za-z0-9 ,.-]{3,100}$/.test(form.storageInstructions.trim())) { e.storageInstructions = "Min 3 chars, letters/numbers/, . - only."; }
-    if (!form.description.trim()) { e.description = "Description is required."; }
-    if (!form.uses.trim()) { e.uses = "Uses field is required."; }
-    if (!form.sideEffects.trim()) { e.sideEffects = "Side effects field is required."; }
-  } else if (form.description.trim() && form.description.trim().length < 5) { e.description = "Description must be at least 5 characters."; }
-  if (form.imageUrl && !/^https?:\/\/.+\..+/.test(form.imageUrl.trim())) { e.imageUrl = "Enter a valid URL starting with http:// or https://."; }
+    if (!form.brand.trim()) {
+      e.brand = "Brand name is required.";
+    } else if (!/^[A-Za-z ]{2,100}$/.test(form.brand.trim())) {
+      e.brand = "Brand must be 2–100 letters only, no numbers.";
+    }
+
+    if (!form.composition.trim()) {
+      e.composition = "Composition is required.";
+    } else if (!/^[A-Za-z0-9+., ]{3,255}$/.test(form.composition.trim())) {
+      e.composition = "Use letters, numbers and + . , only (min 3 chars).";
+    }
+
+    if (!form.strength.trim()) {
+      e.strength = "Strength is required (e.g. 500mg, 5ml, 1g).";
+    } else if (!/^\d+(mg|ml|g)$/i.test(form.strength.trim())) {
+      e.strength = "Format must be like 500mg, 5ml or 1g.";
+    }
+  }
+
+  if (form.price === "" || form.price === null || form.price === undefined) {
+    e.price = "Price is required.";
+  } else if (isNaN(form.price) || Number(form.price) <= 0) {
+    e.price = "Price must be a number greater than 0.";
+  }
+
+  if (form.taxPercentage === "" || form.taxPercentage === null || form.taxPercentage === undefined) {
+    e.taxPercentage = "Tax percentage is required.";
+  } else {
+    const t = Number(form.taxPercentage);
+    if (isNaN(t) || t < 0 || t > 99) {
+      e.taxPercentage = "Tax must be between 0 and 99.";
+    }
+  }
+
+  if (form.discountPercentage === "" || form.discountPercentage === null || form.discountPercentage === undefined) {
+    e.discountPercentage = "Discount percentage is required.";
+  } else {
+    const d = Number(form.discountPercentage);
+    if (isNaN(d) || d < 0 || d > 99) {
+      e.discountPercentage = "Discount must be between 0 and 99.";
+    }
+  }
+
+  if (!isEdit && !form.categoryId) {
+    e.categoryId = "Category is required.";
+  }
+
+  if (form.manufacturerId !== "") {
+    if (isNaN(form.manufacturerId) || Number(form.manufacturerId) <= 0) {
+      e.manufacturerId = "Enter a valid positive manufacturer ID.";
+    }
+  } else if (!isEdit) {
+    e.manufacturerId = "Manufacturer ID is required.";
+  }
+
+  if (!isEdit && !form.scheduleType) {
+    e.scheduleType = "Schedule type is required.";
+  }
+
+  if (!isEdit && !form.dosageForm) {
+    e.dosageForm = "Dosage form is required.";
+  } else if (form.dosageForm && !["tablet", "syrup", "injection"].includes(form.dosageForm.toLowerCase())) {
+    e.dosageForm = "Select a valid dosage form (Tablet, Syrup or Injection).";
+  }
+
+  if (!isEdit) {
+    if (!form.storageInstructions.trim()) {
+      e.storageInstructions = "Storage instructions are required.";
+    } else if (!/^[A-Za-z0-9 ,.-]{3,100}$/.test(form.storageInstructions.trim())) {
+      e.storageInstructions = "Min 3 chars, letters/numbers/, . - only.";
+    }
+
+    if (!form.description.trim()) {
+      e.description = "Description is required.";
+    }
+
+    if (!form.uses.trim()) {
+      e.uses = "Uses field is required.";
+    }
+
+    if (!form.sideEffects.trim()) {
+      e.sideEffects = "Side effects field is required.";
+    }
+  } else if (form.description.trim() && form.description.trim().length < 5) {
+    e.description = "Description must be at least 5 characters.";
+  }
+
+  if (form.imageUrl && !/^https?:\/\/.+\..+/.test(form.imageUrl.trim())) {
+    e.imageUrl = "Enter a valid URL starting with http:// or https://.";
+  }
+
   return e;
 }
 
@@ -124,7 +196,6 @@ function FieldWrap({ children, error, full }) {
   );
 }
 
-
 function fmtDate(d) {
   if (!d) return "—";
   return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
@@ -133,18 +204,13 @@ function fmtDate(d) {
 export default function MedicineManagementPage() {
 
   function showToast(msg, error = false) {
-  setToast({ show: true, msg, error });
+    setToast({ show: true, msg, error });
+    setTimeout(() => {
+      setToast({ show: false, msg: "", error: false });
+    }, 3000);
+  }
 
-  setTimeout(() => {
-    setToast({ show: false, msg: "", error: false });
-  }, 3000);
-}
-   const [toast, setToast] = useState({
-  show: false,
-  msg: "",
-  error: false,
-});
-
+  const [toast, setToast] = useState({ show: false, msg: "", error: false });
 
   const dispatch = useDispatch();
   const { adminMedicines, stats, batchMap, categories, loading, adminLoading, adminError } =
@@ -157,10 +223,10 @@ export default function MedicineManagementPage() {
   const [expandedRows, setExpandedRows] = useState(new Set());
   const [batchFetched, setBatchFetched] = useState(new Set());
 
-  const [medModal,    setMedModal]    = useState(false);
+  const [medModal,     setMedModal]     = useState(false);
   const [editingMedId, setEditingMedId] = useState(null);
-  const [medForm,     setMedForm]     = useState(EMPTY_MED_FORM);
-  const [medErrors,   setMedErrors]   = useState({});
+  const [medForm,      setMedForm]      = useState(EMPTY_MED_FORM);
+  const [medErrors,    setMedErrors]    = useState({});
 
   const [availModal, setAvailModal] = useState({ open: false, id: null, name: "", action: "" });
 
@@ -172,7 +238,6 @@ export default function MedicineManagementPage() {
   const [batchErrors,    setBatchErrors]    = useState({});
 
   const [deleteBatchModal, setDeleteBatchModal] = useState({ open: false, medicineId: null, batchId: null, label: "" });
-
 
   useEffect(() => {
     const load = async () => {
@@ -203,24 +268,37 @@ export default function MedicineManagementPage() {
     if (medErrors[key]) setMedErrors((e) => ({ ...e, [key]: "" }));
   }
 
-  function openAddMed() { setEditingMedId(null); setMedForm(EMPTY_MED_FORM); setMedErrors({}); setMedModal(true); }
+  function openAddMed() {
+    setEditingMedId(null);
+    setMedForm(EMPTY_MED_FORM);
+    setMedErrors({});
+    setMedModal(true);
+  }
+
   function openEditMed(med) {
     setEditingMedId(med.id);
     setMedForm({
-      name: med.name || "", brand: "", composition: "", strength: "",
-      price: med.price ?? "", prescriptionRequired: med.prescriptionRequired ?? false,
-      categoryId: med.categoryId ? String(med.categoryId) : "", manufacturerId: "",
-      storageInstructions: "", dosageForm: "", scheduleType: "",
-      taxPercentage: med.discount ?? "", discountPercentage: med.discount ?? "",
-      description: med.description || "", uses: "", sideEffects: "", imageUrl: med.imageUrl || "",
+      ...EMPTY_MED_FORM,
+      name:               med.name               ?? "",
+      price:              med.price               ?? "",
+      taxPercentage:      med.taxPercentage       ?? "",
+      discountPercentage: med.discount            ?? "",
     });
-    setMedErrors({}); setMedModal(true);
+    setMedErrors({});
+    setMedModal(true);
   }
-  function closeMedModal() { setMedModal(false); setEditingMedId(null); setMedForm(EMPTY_MED_FORM); setMedErrors({}); }
+
+  function closeMedModal() {
+    setMedModal(false);
+    setEditingMedId(null);
+    setMedForm(EMPTY_MED_FORM);
+    setMedErrors({});
+  }
 
   async function handleSaveMed() {
     const errors = validateMedForm(medForm, !!editingMedId);
     if (Object.keys(errors).length) { setMedErrors(errors); return; }
+
     const dto = {
       ...medForm,
       price:              parseFloat(medForm.price),
@@ -229,13 +307,22 @@ export default function MedicineManagementPage() {
       taxPercentage:      medForm.taxPercentage      !== "" ? parseInt(medForm.taxPercentage)      : null,
       discountPercentage: medForm.discountPercentage !== "" ? parseInt(medForm.discountPercentage) : null,
     };
+
     if (editingMedId) {
-      const updateDto = { name: dto.name, price: dto.price, taxPercentage: dto.taxPercentage, discountPercentage: dto.discountPercentage };
+      const updateDto = {
+        name:               dto.name,
+        price:              dto.price,
+        taxPercentage:      dto.taxPercentage,
+        discountPercentage: dto.discountPercentage,
+      };
       const result = await dispatch(editMedicine({ id: editingMedId, dto: updateDto }));
       if (editMedicine.fulfilled.match(result)) {
         showToast("Medicine updated successfully");
-        dispatch(fetchMedicineStats()); dispatch(fetchAllMedicinesForAdmin());
-      } else { showToast(result.payload || "Update failed", true); }
+        dispatch(fetchMedicineStats());
+        dispatch(fetchAllMedicinesForAdmin());
+      } else {
+        showToast(result.payload || "Update failed", true);
+      }
     } else {
       const result = await dispatch(createMedicine(dto));
       if (createMedicine.fulfilled.match(result)) {
@@ -244,7 +331,9 @@ export default function MedicineManagementPage() {
         const newMed = result.payload;
         if (newMed?.id) dispatch(fetchBatches(newMed.id));
         dispatch(fetchAllMedicinesForAdmin());
-      } else { showToast(result.payload || "Add failed", true); }
+      } else {
+        showToast(result.payload || "Add failed", true);
+      }
     }
     closeMedModal();
   }
@@ -254,26 +343,57 @@ export default function MedicineManagementPage() {
     if (changeMedicineAvailability.fulfilled.match(result)) {
       const label = availModal.action === "available" ? "available" : "unavailable";
       showToast(`"${availModal.name}" marked as ${label}`);
-      dispatch(fetchMedicineStats()); dispatch(fetchAllMedicinesForAdmin());
-    } else { showToast("Status update failed", true); }
+      dispatch(fetchMedicineStats());
+      dispatch(fetchAllMedicinesForAdmin());
+    } else {
+      showToast("Status update failed", true);
+    }
     setAvailModal({ open: false, id: null, name: "", action: "" });
   }
 
   function toggleExpand(med) {
     const next = new Set(expandedRows);
-    if (next.has(med.id)) { next.delete(med.id); }
-    else {
+    if (next.has(med.id)) {
+      next.delete(med.id);
+    } else {
       next.add(med.id);
-      if (!batchFetched.has(med.id)) { dispatch(fetchBatches(med.id)); setBatchFetched((prev) => new Set(prev).add(med.id)); }
+      if (!batchFetched.has(med.id)) {
+        dispatch(fetchBatches(med.id));
+        setBatchFetched((prev) => new Set(prev).add(med.id));
+      }
     }
     setExpandedRows(next);
   }
 
-  function openAddBatch(med)  { setBatchMedId(med.id); setBatchMedName(med.name); setEditingBatchId(null); setBatchForm(EMPTY_BATCH_FORM); setBatchErrors({}); setBatchModal(true); }
-  function openEditBatch(med, batch) { setBatchMedId(med.id); setBatchMedName(med.name); setEditingBatchId(batch.batchId); setBatchForm({ batchNumber: batch.batchNumber, expiryDate: batch.expiryDate, quantity: batch.quantity }); setBatchErrors({}); setBatchModal(true); }
-  function closeBatchModal()  { setBatchModal(false); setEditingBatchId(null); setBatchForm(EMPTY_BATCH_FORM); setBatchErrors({}); }
+  function openAddBatch(med)  {
+    setBatchMedId(med.id);
+    setBatchMedName(med.name);
+    setEditingBatchId(null);
+    setBatchForm(EMPTY_BATCH_FORM);
+    setBatchErrors({});
+    setBatchModal(true);
+  }
 
-  function setBatchField(key, value) { setBatchForm((f) => ({ ...f, [key]: value })); if (batchErrors[key]) setBatchErrors((e) => ({ ...e, [key]: "" })); }
+  function openEditBatch(med, batch) {
+    setBatchMedId(med.id);
+    setBatchMedName(med.name);
+    setEditingBatchId(batch.batchId);
+    setBatchForm({ batchNumber: batch.batchNumber, expiryDate: batch.expiryDate, quantity: batch.quantity });
+    setBatchErrors({});
+    setBatchModal(true);
+  }
+
+  function closeBatchModal() {
+    setBatchModal(false);
+    setEditingBatchId(null);
+    setBatchForm(EMPTY_BATCH_FORM);
+    setBatchErrors({});
+  }
+
+  function setBatchField(key, value) {
+    setBatchForm((f) => ({ ...f, [key]: value }));
+    if (batchErrors[key]) setBatchErrors((e) => ({ ...e, [key]: "" }));
+  }
 
   function validateBatchForm() {
     const e = {};
@@ -346,7 +466,6 @@ export default function MedicineManagementPage() {
             </span>
           </td>
           <td>
-            {/* ── shared StatusBadge ── */}
             <StatusBadge status={med.status} preset="availability" />
           </td>
           <td>
@@ -427,7 +546,6 @@ export default function MedicineManagementPage() {
     );
   }
 
-  // ── toolbar filter config ──
   const toolbarFilters = [
     {
       type: "select",
@@ -462,7 +580,6 @@ export default function MedicineManagementPage() {
         </section>
 
         <div className="table-card">
-          {/* ── shared TableToolbar ── */}
           <TableToolbar
             title="All Medicines"
             search={search}
@@ -476,28 +593,48 @@ export default function MedicineManagementPage() {
         </div>
       </main>
 
-      {/* ADD / EDIT MEDICINE MODAL */}
       {medModal && (
-        <Modal title={editingMedId ? "Edit Medicine" : "Add Medicine"} onClose={closeMedModal} size="lg">
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"4px 16px" }}>
-            <FieldWrap error={medErrors.name}><label className="mlabel">Medicine Name <Req /></label><input className={`minput${medErrors.name?" err":""}`} placeholder="e.g. Paracetamol" value={medForm.name} onChange={(e) => setField("name", e.target.value)} /></FieldWrap>
-            <FieldWrap error={medErrors.brand}><label className="mlabel">Brand Name {!editingMedId && <Req />}</label><input className={`minput${medErrors.brand?" err":""}`} placeholder="e.g. Calpol" value={medForm.brand} onChange={(e) => setField("brand", e.target.value)} /></FieldWrap>
-            <FieldWrap error={medErrors.composition} full><label className="mlabel">Composition {!editingMedId && <Req />}</label><input className={`minput${medErrors.composition?" err":""}`} placeholder="e.g. Paracetamol 500mg" value={medForm.composition} onChange={(e) => setField("composition", e.target.value)} /></FieldWrap>
-            <FieldWrap error={medErrors.strength}><label className="mlabel">Strength {!editingMedId && <Req />}</label><input className={`minput${medErrors.strength?" err":""}`} placeholder="e.g. 500mg, 5ml, 1g" value={medForm.strength} onChange={(e) => setField("strength", e.target.value)} /></FieldWrap>
-            <FieldWrap error={medErrors.dosageForm}><label className="mlabel">Dosage Form {!editingMedId && <Req />}</label><select className={`mselect${medErrors.dosageForm?" err":""}`} value={medForm.dosageForm} onChange={(e) => setField("dosageForm", e.target.value)}><option value="">Select form</option><option value="tablet">Tablet</option><option value="syrup">Syrup</option><option value="injection">Injection</option></select></FieldWrap>
-            <FieldWrap error={medErrors.price}><label className="mlabel">Price (₹) <Req /></label><input className={`minput${medErrors.price?" err":""}`} type="number" step="0.01" min="0.01" placeholder="0.00" value={medForm.price} onChange={(e) => setField("price", e.target.value)} /></FieldWrap>
-            <FieldWrap error={medErrors.taxPercentage}><label className="mlabel">Tax %</label><input className={`minput${medErrors.taxPercentage?" err":""}`} type="number" min="0" max="99" placeholder="e.g. 12" value={medForm.taxPercentage} onChange={(e) => setField("taxPercentage", e.target.value)} /></FieldWrap>
-            <FieldWrap error={medErrors.discountPercentage}><label className="mlabel">Discount %</label><input className={`minput${medErrors.discountPercentage?" err":""}`} type="number" min="0" max="99" placeholder="e.g. 10" value={medForm.discountPercentage} onChange={(e) => setField("discountPercentage", e.target.value)} /></FieldWrap>
-            <FieldWrap error={medErrors.categoryId}><label className="mlabel">Category {!editingMedId && <Req />}</label><select className={`mselect${medErrors.categoryId?" err":""}`} value={medForm.categoryId} onChange={(e) => setField("categoryId", e.target.value)} disabled={adminLoading && categories.length === 0}><option value="">{adminLoading && categories.length === 0 ? "Loading categories…" : "Select category"}</option>{categories.map((cat) => (<option key={cat.id} value={cat.id}>{cat.name}</option>))}</select></FieldWrap>
-            <FieldWrap error={medErrors.manufacturerId}><label className="mlabel">Manufacturer ID {!editingMedId && <Req />}</label><input className={`minput${medErrors.manufacturerId?" err":""}`} type="number" placeholder="e.g. 1" value={medForm.manufacturerId} onChange={(e) => setField("manufacturerId", e.target.value)} /></FieldWrap>
-            <FieldWrap error={medErrors.scheduleType}><label className="mlabel">Schedule Type {!editingMedId && <Req />}</label><select className={`mselect${medErrors.scheduleType?" err":""}`} value={medForm.scheduleType} onChange={(e) => setField("scheduleType", e.target.value)}><option value="">Select type</option><option value="otc">OTC (Over the Counter)</option><option value="h1">H1 (Prescription)</option><option value="h2">H2 (Hospital Only)</option><option value="x">Schedule X (Controlled)</option></select></FieldWrap>
-            <FieldWrap><div style={{ display:"flex", alignItems:"center", gap:8, paddingTop:18 }}><input type="checkbox" id="rxRequired" checked={medForm.prescriptionRequired} onChange={(e) => setField("prescriptionRequired", e.target.checked)} style={{ width:16, height:16, accentColor:"var(--green)" }} /><label htmlFor="rxRequired" className="mlabel" style={{ marginBottom:0 }}>Prescription Required</label></div></FieldWrap>
-            <FieldWrap error={medErrors.storageInstructions} full><label className="mlabel">Storage Instructions {!editingMedId && <Req />}</label><input className={`minput${medErrors.storageInstructions?" err":""}`} placeholder="e.g. Store below 25°C" value={medForm.storageInstructions} onChange={(e) => setField("storageInstructions", e.target.value)} /></FieldWrap>
-            <FieldWrap error={medErrors.description} full><label className="mlabel">Description {!editingMedId && <Req />}</label><input className={`minput${medErrors.description?" err":""}`} placeholder="Short description" value={medForm.description} onChange={(e) => setField("description", e.target.value)} /></FieldWrap>
-            <FieldWrap error={medErrors.uses} full><label className="mlabel">Uses {!editingMedId && <Req />}</label><input className={`minput${medErrors.uses?" err":""}`} placeholder="e.g. Used for fever and pain relief" value={medForm.uses} onChange={(e) => setField("uses", e.target.value)} /></FieldWrap>
-            <FieldWrap error={medErrors.sideEffects} full><label className="mlabel">Side Effects {!editingMedId && <Req />}</label><input className={`minput${medErrors.sideEffects?" err":""}`} placeholder="e.g. Nausea, dizziness" value={medForm.sideEffects} onChange={(e) => setField("sideEffects", e.target.value)} /></FieldWrap>
-            <FieldWrap error={medErrors.imageUrl} full><label className="mlabel">Image URL</label><input className={`minput${medErrors.imageUrl?" err":""}`} placeholder="https://…" value={medForm.imageUrl} onChange={(e) => setField("imageUrl", e.target.value)} /></FieldWrap>
-          </div>
+        <Modal title={editingMedId ? "Edit Medicine" : "Add Medicine"} onClose={closeMedModal} size={editingMedId ? "sm" : "lg"}>
+          {editingMedId ? (
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"4px 16px" }}>
+              <FieldWrap error={medErrors.name} full>
+                <label className="mlabel">Medicine Name <Req /></label>
+                <input className={`minput${medErrors.name?" err":""}`} placeholder="e.g. Paracetamol" value={medForm.name} onChange={(e) => setField("name", e.target.value)} />
+              </FieldWrap>
+              <FieldWrap error={medErrors.price}>
+                <label className="mlabel">Price (₹) <Req /></label>
+                <input className={`minput${medErrors.price?" err":""}`} type="number" step="0.01" min="0.01" placeholder="0.00" value={medForm.price} onChange={(e) => setField("price", e.target.value)} />
+              </FieldWrap>
+              <FieldWrap error={medErrors.taxPercentage}>
+                <label className="mlabel">Tax % <Req /></label>
+                <input className={`minput${medErrors.taxPercentage?" err":""}`} type="number" min="0" max="99" placeholder="e.g. 12" value={medForm.taxPercentage} onChange={(e) => setField("taxPercentage", e.target.value)} />
+              </FieldWrap>
+              <FieldWrap error={medErrors.discountPercentage} full>
+                <label className="mlabel">Discount % <Req /></label>
+                <input className={`minput${medErrors.discountPercentage?" err":""}`} type="number" min="0" max="99" placeholder="e.g. 10" value={medForm.discountPercentage} onChange={(e) => setField("discountPercentage", e.target.value)} />
+              </FieldWrap>
+            </div>
+          ) : (
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"4px 16px" }}>
+              <FieldWrap error={medErrors.name}><label className="mlabel">Medicine Name <Req /></label><input className={`minput${medErrors.name?" err":""}`} placeholder="e.g. Paracetamol" value={medForm.name} onChange={(e) => setField("name", e.target.value)} /></FieldWrap>
+              <FieldWrap error={medErrors.brand}><label className="mlabel">Brand Name <Req /></label><input className={`minput${medErrors.brand?" err":""}`} placeholder="e.g. Calpol" value={medForm.brand} onChange={(e) => setField("brand", e.target.value)} /></FieldWrap>
+              <FieldWrap error={medErrors.composition} full><label className="mlabel">Composition <Req /></label><input className={`minput${medErrors.composition?" err":""}`} placeholder="e.g. Paracetamol 500mg" value={medForm.composition} onChange={(e) => setField("composition", e.target.value)} /></FieldWrap>
+              <FieldWrap error={medErrors.strength}><label className="mlabel">Strength <Req /></label><input className={`minput${medErrors.strength?" err":""}`} placeholder="e.g. 500mg, 5ml, 1g" value={medForm.strength} onChange={(e) => setField("strength", e.target.value)} /></FieldWrap>
+              <FieldWrap error={medErrors.dosageForm}><label className="mlabel">Dosage Form <Req /></label><select className={`mselect${medErrors.dosageForm?" err":""}`} value={medForm.dosageForm} onChange={(e) => setField("dosageForm", e.target.value)}><option value="">Select form</option><option value="tablet">Tablet</option><option value="syrup">Syrup</option><option value="injection">Injection</option></select></FieldWrap>
+              <FieldWrap error={medErrors.price}><label className="mlabel">Price (₹) <Req /></label><input className={`minput${medErrors.price?" err":""}`} type="number" step="0.01" min="0.01" placeholder="0.00" value={medForm.price} onChange={(e) => setField("price", e.target.value)} /></FieldWrap>
+              <FieldWrap error={medErrors.taxPercentage}><label className="mlabel">Tax % <Req /></label><input className={`minput${medErrors.taxPercentage?" err":""}`} type="number" min="0" max="99" placeholder="e.g. 12" value={medForm.taxPercentage} onChange={(e) => setField("taxPercentage", e.target.value)} /></FieldWrap>
+              <FieldWrap error={medErrors.discountPercentage}><label className="mlabel">Discount %</label><input className={`minput${medErrors.discountPercentage?" err":""}`} type="number" min="0" max="99" placeholder="e.g. 10" value={medForm.discountPercentage} onChange={(e) => setField("discountPercentage", e.target.value)} /></FieldWrap>
+              <FieldWrap error={medErrors.categoryId}><label className="mlabel">Category <Req /></label><select className={`mselect${medErrors.categoryId?" err":""}`} value={medForm.categoryId} onChange={(e) => setField("categoryId", e.target.value)} disabled={adminLoading && categories.length === 0}><option value="">{adminLoading && categories.length === 0 ? "Loading categories…" : "Select category"}</option>{categories.map((cat) => (<option key={cat.id} value={cat.id}>{cat.name}</option>))}</select></FieldWrap>
+              <FieldWrap error={medErrors.manufacturerId}><label className="mlabel">Manufacturer ID <Req /></label><input className={`minput${medErrors.manufacturerId?" err":""}`} type="number" placeholder="e.g. 1" value={medForm.manufacturerId} onChange={(e) => setField("manufacturerId", e.target.value)} /></FieldWrap>
+              <FieldWrap error={medErrors.scheduleType}><label className="mlabel">Schedule Type <Req /></label><select className={`mselect${medErrors.scheduleType?" err":""}`} value={medForm.scheduleType} onChange={(e) => setField("scheduleType", e.target.value)}><option value="">Select type</option><option value="otc">OTC (Over the Counter)</option><option value="h1">H1 (Prescription)</option><option value="h2">H2 (Hospital Only)</option><option value="x">Schedule X (Controlled)</option></select></FieldWrap>
+              <FieldWrap><div style={{ display:"flex", alignItems:"center", gap:8, paddingTop:18 }}><input type="checkbox" id="rxRequired" checked={medForm.prescriptionRequired} onChange={(e) => setField("prescriptionRequired", e.target.checked)} style={{ width:16, height:16, accentColor:"var(--green)" }} /><label htmlFor="rxRequired" className="mlabel" style={{ marginBottom:0 }}>Prescription Required</label></div></FieldWrap>
+              <FieldWrap error={medErrors.storageInstructions} full><label className="mlabel">Storage Instructions <Req /></label><input className={`minput${medErrors.storageInstructions?" err":""}`} placeholder="e.g. Store below 25°C" value={medForm.storageInstructions} onChange={(e) => setField("storageInstructions", e.target.value)} /></FieldWrap>
+              <FieldWrap error={medErrors.description} full><label className="mlabel">Description <Req /></label><input className={`minput${medErrors.description?" err":""}`} placeholder="Short description" value={medForm.description} onChange={(e) => setField("description", e.target.value)} /></FieldWrap>
+              <FieldWrap error={medErrors.uses} full><label className="mlabel">Uses <Req /></label><input className={`minput${medErrors.uses?" err":""}`} placeholder="e.g. Used for fever and pain relief" value={medForm.uses} onChange={(e) => setField("uses", e.target.value)} /></FieldWrap>
+              <FieldWrap error={medErrors.sideEffects} full><label className="mlabel">Side Effects <Req /></label><input className={`minput${medErrors.sideEffects?" err":""}`} placeholder="e.g. Nausea, dizziness" value={medForm.sideEffects} onChange={(e) => setField("sideEffects", e.target.value)} /></FieldWrap>
+              <FieldWrap error={medErrors.imageUrl} full><label className="mlabel">Image URL</label><input className={`minput${medErrors.imageUrl?" err":""}`} placeholder="https://…" value={medForm.imageUrl} onChange={(e) => setField("imageUrl", e.target.value)} /></FieldWrap>
+            </div>
+          )}
           <div className="admin-modal-footer">
             <button className="btn-cancel" onClick={() => { setMedForm(EMPTY_MED_FORM); setMedErrors({}); }}>Reset</button>
             <button className="btn-save" onClick={handleSaveMed} disabled={adminLoading}>
@@ -507,7 +644,6 @@ export default function MedicineManagementPage() {
         </Modal>
       )}
 
-      {/* AVAILABILITY CONFIRM — shared AdminConfirmModal */}
       {availModal.open && (
         <AdminConfirmModal
           title={availModal.action === "not_available" ? "Mark as Unavailable" : "Mark as Available"}
@@ -527,7 +663,6 @@ export default function MedicineManagementPage() {
         />
       )}
 
-      {/* BATCH ADD / EDIT MODAL */}
       {batchModal && (
         <Modal title={`${editingBatchId ? "Edit" : "Add"} Batch — ${batchMedName}`} onClose={closeBatchModal} size="sm">
           <FieldWrap error={batchErrors.batchNumber}><label className="mlabel">Batch Number <Req /></label><input className={`minput${batchErrors.batchNumber?" err":""}`} placeholder="e.g. BT-101" value={batchForm.batchNumber} onChange={(e) => setBatchField("batchNumber", e.target.value)} /></FieldWrap>
@@ -540,7 +675,6 @@ export default function MedicineManagementPage() {
         </Modal>
       )}
 
-      {/* DELETE BATCH CONFIRM — shared AdminConfirmModal */}
       {deleteBatchModal.open && (
         <AdminConfirmModal
           title="Delete Batch"

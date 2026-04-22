@@ -1,4 +1,4 @@
-// auth/services/authService.js
+
 import axios from "axios";
 import { store } from "../../../store";
 import { clearAuth } from "../slice/authSlice";

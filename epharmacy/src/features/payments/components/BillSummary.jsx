@@ -1,4 +1,4 @@
-import "./BillSummary.css";
+import "../css/BillSummary.css";
 
 export default function BillSummary({ summary, payTotal, onPay, processing, methodLabel }) {
   if (!summary) return <div className="bill-card skeleton">Loading summary...</div>;

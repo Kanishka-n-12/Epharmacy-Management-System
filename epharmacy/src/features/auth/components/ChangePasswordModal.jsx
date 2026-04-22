@@ -51,10 +51,14 @@ export default function ChangePasswordModal({ show, onClose, verifiedPhone, otp,
     e.preventDefault();
     const errs = {};
     if (!newPass) errs.newPass = "Password cannot be empty";
-    else if (!passRegex.test(newPass)) errs.newPass = "Min 8 chars, 1 Upper, 1 Lower, 1 Number, 1 Special";
+    else if (!passRegex.test(newPass)) 
+      errs.newPass = "Min 8 chars, 1 Upper, 1 Lower, 1 Number, 1 Special";
     if (!confirm) errs.confirm = "Please confirm your password";
     else if (newPass !== confirm) errs.confirm = "Passwords do not match";
-    if (Object.keys(errs).length) { setErrors(errs); return; }
+    if (Object.keys(errs).length) { 
+      setErrors(errs); 
+      return; 
+    }
 
     const result = await dispatch(resetPassword({
       phone: verifiedPhone, otp: String(otp), newPassword: newPass,

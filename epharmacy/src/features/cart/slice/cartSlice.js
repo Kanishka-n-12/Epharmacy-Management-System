@@ -1,7 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import {
-  getCartApi, getCartSummaryApi, getCartCountApi,
-  addToCartApi, updateQtyApi, removeItemApi,
+import { getCartApi, getCartSummaryApi, getCartCountApi, addToCartApi, updateQtyApi, removeItemApi,
   saveForLaterApi, moveToCartApi, deleteSavedApi, placeOrderApi
 } from "../services/cartService";
 
@@ -23,7 +21,6 @@ export const placeOrder = createAsyncThunk(
   async ({ addressId }, { rejectWithValue }) => {
     try {
       const result = await placeOrderApi(addressId);
-      console.log("Backend response from placeOrder:", result);
       return result;
     } catch (e) {
       return rejectWithValue(e.response?.data?.message || e.message);
