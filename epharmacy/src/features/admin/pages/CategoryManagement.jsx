@@ -127,21 +127,34 @@ function showToast(msg, error = false) {
   }
 
   async function confirmDeactivate() {
-    const result = await dispatch(updateCategoryStatus({ id: deactivateModal.id, status: "inactive" }));
-    if (updateCategoryStatus.fulfilled.match(result)) {
-      showToast(`"${deactivateModal.name}" has been deactivated`);
-      dispatch(fetchCategoryStats()); dispatch(fetchCategories());
-    }
+  try {
+    await dispatch(
+      updateCategoryStatus({ id: deactivateModal.id, status: "inactive" })
+    ).unwrap();
+
+    showToast(`"${deactivateModal.name}" has been deactivated`);
+    dispatch(fetchCategoryStats());
+    dispatch(fetchCategories());
+
     setDeactivateModal({ open: false, id: null, name: "" });
+  } catch (err) {
+    showToast(err || "Failed to deactivate category", true);
   }
+}
 
   async function handleActivate(cat) {
-    const result = await dispatch(updateCategoryStatus({ id: cat.id, status: "active" }));
-    if (updateCategoryStatus.fulfilled.match(result)) {
-      showToast(`"${cat.name}" has been activated`);
-      dispatch(fetchCategoryStats()); dispatch(fetchCategories());
-    }
+  try {
+    await dispatch(
+      updateCategoryStatus({ id: cat.id, status: "active" })
+    ).unwrap();
+
+    showToast(`"${cat.name}" has been activated`);
+    dispatch(fetchCategoryStats());
+    dispatch(fetchCategories());
+  } catch (err) {
+    showToast(err || "Failed to activate category", true);
   }
+}
 
   function renderRow(cat, index) {
     const isActive = cat.status?.toLowerCase() === "active";
@@ -199,7 +212,6 @@ function showToast(msg, error = false) {
         </section>
 
         <div className="table-card">
-          {/* ── shared TableToolbar ── */}
           <TableToolbar
             title="All Categories"
             search={search}
