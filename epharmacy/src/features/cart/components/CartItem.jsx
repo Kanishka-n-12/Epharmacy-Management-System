@@ -69,12 +69,22 @@ export default function CartItem({ item, onUpdateQty, onRemove, onSaveForLater }
           <button onClick={() => onRemove(item.medicineId)} style={{
             fontSize: 11, fontWeight: 700, padding: "4px 12px", borderRadius: 6,
             border: "1px solid #e53935", background: "#fff", color: "#e53935", cursor: "pointer"
-          }}>REMOVE X</button>
+          }}><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+    <path d="M10 11v6" />
+    <path d="M14 11v6" />
+    <path d="M9 6V4h6v2" />
+  </svg></button>
 
           <button onClick={() => onSaveForLater(item.medicineId)} style={{
             fontSize: 11, fontWeight: 600, padding: "4px 12px", borderRadius: 20,
             border: "1.5px solid #1565c0", background: "#fff", color: "#1565c0", cursor: "pointer"
-          }}>SAVE FOR LATER</button>
+          }}><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+  </svg></button>
         </div>
       </div>
     </div>

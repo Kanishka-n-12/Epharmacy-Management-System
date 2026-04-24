@@ -6,7 +6,7 @@ const PLACEHOLDER =
   "https://res.cloudinary.com/dorv3lswe/image/upload/v1775886924/account_eavxvn.png";
 
 function isCancellable(status) {
-  return status === "processing" || status === "placed";
+  return  status === "PLACED";
 }
 
 export default function OrderCard({ order, onViewDetails, onCancelClick, index }) {

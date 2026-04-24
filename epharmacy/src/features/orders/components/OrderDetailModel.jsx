@@ -6,7 +6,7 @@ const PLACEHOLDER =
   "https://res.cloudinary.com/dorv3lswe/image/upload/v1775886924/account_eavxvn.png";
 
 function isCancellable(status) {
-  return status === "Placed" || status === "placed";
+  return  status === "PLACED";
 }
 
 export default function OrderDetailModal({ order, onClose, onCancelClick }) {
@@ -97,6 +97,7 @@ export default function OrderDetailModal({ order, onClose, onCancelClick }) {
             </div>
           </div>
 
+          {console.log(orderStatus)};
          
           {isCancellable(orderStatus) && (
             <div className="detail-cancel-wrap">

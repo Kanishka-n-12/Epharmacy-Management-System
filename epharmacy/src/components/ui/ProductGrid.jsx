@@ -29,7 +29,7 @@ export default function ProductGrid({
               onAddToCart={onAddToCart}
               onUpdateQty={onUpdateQty}
               onRemove={onRemove}
-              onCardClick={onCardClick}
+              onCardClick={p.onCardClick}
             />
           </div>
         );

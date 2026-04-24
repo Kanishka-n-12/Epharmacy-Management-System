@@ -1,0 +1,329 @@
+/* MedicineDetailPage.css — matches medicine-detail.css from reference exactly */
+
+:root {
+    --primary-green: #52a468;
+    --hero-green: #a3ccab;
+    --footer-green: #a3ccab;
+    --danger-red: #f44336;
+    --white: #ffffff;
+    --bg-page: #fcfcfc;
+    --text-dark: #333;
+    --text-muted: #888;
+    --border: #efefef;
+}
+
+/* ═════════ LOADING / ERROR STATES ═════════ */
+.detail-loading,
+.detail-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 40vh;
+    gap: 16px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border);
+    border-top-color: var(--primary-green);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.btn-back {
+    background: transparent;
+    border: 2px solid var(--primary-green);
+    color: var(--primary-green);
+    border-radius: 25px;
+    padding: 8px 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-back:hover {
+    background: var(--primary-green);
+    color: white;
+}
+
+/* ═════════ PRODUCT DETAIL CARD ═════════ */
+.product-detail-card {
+    background: var(--white);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.product-detail-inner {
+    display: flex;
+    gap: 20px;
+    padding: 24px;
+}
+
+/* ═════════ PRODUCT IMAGE BOX ═════════ */
+.product-img-box {
+    width: 160px;
+    height: 160px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #fafafa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-img-box img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* ═════════ PRODUCT INFO ═════════ */
+.product-info {
+    flex: 1;
+}
+
+.product-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: var(--text-dark);
+}
+
+.product-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.product-brand,
+.product-strength {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+/* ═════════ PRICE ROW ═════════ */
+.price-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2px;
+}
+
+.product-price {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--text-dark);
+}
+
+.product-mrp {
+    font-size: 0.85rem;
+    color: #aaa;
+    text-decoration: line-through;
+}
+
+.inclusive-text {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+/* ═════════ PRESCRIPTION BADGE ═════════ */
+.rx-required {
+    font-size: 0.75rem;
+    color: var(--danger-red);
+    font-weight: 500;
+    margin-bottom: 10px;
+    background: #fff0f0;
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid #ffcdd2;
+}
+
+/* ═════════ QTY SELECTOR ═════════ */
+.qty-selector-detail {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.qty-btn-detail {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #1a73e8;
+    background: white;
+    color: #1a73e8;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+.qty-btn-detail:hover {
+    background: #1a73e8;
+    color: white;
+}
+
+.qty-count-detail {
+    font-size: 1.1rem;
+    font-weight: 600;
+    min-width: 30px;
+    text-align: center;
+    color: var(--text-dark);
+}
+
+/* ═════════ ADD TO CART BUTTON ═════════ */
+.btn-add-to-cart {
+    background-color: var(--primary-green);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 10px 24px;
+    cursor: pointer;
+    transition: 0.3s;
+    letter-spacing: 0.4px;
+}
+
+.btn-add-to-cart:hover {
+    background-color: #4a945b;
+}
+
+.btn-add-to-cart:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* ═════════ DESCRIPTION SECTION ═════════ */
+.description-section {
+    padding: 18px 24px;
+    border-top: 1px solid var(--border);
+}
+
+.desc-heading {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-dark);
+}
+
+.desc-text {
+    font-size: 0.8rem;
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 4px;
+}
+
+/* ═════════ SUMMARY CARD ═════════ */
+.summary-card {
+    background: var(--white);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 20px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.summary-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    border-bottom: 2px solid var(--primary-green);
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+    color: var(--text-dark);
+}
+
+.summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 18px;
+}
+
+.summary-table tr {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.summary-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    padding: 8px 0;
+    text-transform: capitalize;
+}
+
+.summary-value {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    padding: 8px 0 8px 10px;
+}
+
+.save-value {
+    color: var(--primary-green);
+}
+
+/* ═════════ STATUS BADGES ═════════ */
+.status-available {
+    color: var(--primary-green);
+    font-weight: 600;
+}
+
+.status-unavailable {
+    color: var(--danger-red);
+    font-weight: 600;
+}
+
+/* ═════════ VIEW CART BUTTON ═════════ */
+.btn-view-cart {
+    width: 100%;
+    background: transparent;
+    color: var(--primary-green);
+    border: 2px solid var(--primary-green);
+    border-radius: 25px;
+    padding: 10px 0;
+    font-size: 0.75rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    letter-spacing: 0.4px;
+}
+
+.btn-view-cart:hover {
+    background: var(--primary-green);
+    color: white;
+}
+
+/* ═════════ RESPONSIVE ═════════ */
+@media (max-width: 576px) {
+    .product-detail-inner {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .price-row {
+        justify-content: center;
+    }
+
+    .qty-selector-detail {
+        justify-content: center;
+    }
+}

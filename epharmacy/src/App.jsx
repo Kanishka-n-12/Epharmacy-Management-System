@@ -25,6 +25,7 @@ import ReportsAnalyticsPage from "./features/admin/pages/ReportsAnalyticsPage";
 import PrescriptionManagementPage from "./features/admin/pages/PrescriptionManagementPage";
 import OrdersPaymentManagementPage from "./features/admin/pages/OrdersPaymentsManagementPage";
 import ErrorPage from "./components/layout/components/ErrorPage";
+import MedicineDetailPage from "./features/medicines/pages/MedicineDetailPage";
 
 const Placeholder = ({ name }) => (
   <div className="container py-5 text-center">
@@ -49,14 +50,13 @@ export default function App() {
         <Route path="/" element={<UserLayout />}>
           <Route index element={<HomePage />} />
           <Route path="medicines" element={<MedicinesPage />} />
-          <Route path="medicines/:id" element={<Placeholder name="Medicine Detail" />} />
           <Route path="categories" element={<CategoryPage />} />
           <Route path="about" element={<AboutUs />} />
           <Route path="contact" element={<ContactUs />} />
           <Route path="privacy" element={<PrivacyPolicy />} />
           <Route path="unauthorized" element={<Unauthorized />} />
           <Route path="login" element={<Navigate to="/" replace />} />
-          
+          <Route path="/medicines/:id" element={<MedicineDetailPage />} />
 
           <Route path="cart" element={
             <ProtectedRoute allowedRoles={["ROLE_USER"]}><CartPage /></ProtectedRoute>

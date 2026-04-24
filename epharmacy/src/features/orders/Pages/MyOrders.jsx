@@ -25,6 +25,7 @@ export default function MyOrders() {
   const dispatch = useDispatch();
   const { orders, loading, error, cancelling, cancelSuccess, cancelError } =
     useSelector((s) => s.orders);
+    const reversedOrders = [...orders].reverse();
 
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [dateFilter, setDateFilter] = useState("");
@@ -51,7 +52,7 @@ export default function MyOrders() {
 
 
   const filtered = useMemo(() => {
-    return orders.filter((o) => {
+    return reversedOrders.filter((o) => {
       const matchStatus =
         statusFilter === "ALL" ||
         o.orderStatus?.toLowerCase() === statusFilter.toLowerCase();

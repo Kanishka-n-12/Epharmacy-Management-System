@@ -19,6 +19,7 @@ export default function Header() {
  
   const { isAuthenticated, phone } = useSelector((s) => s.auth);
   const cartCount                  = useSelector((s) => s.cart.count);
+  const user = useSelector((s)=>s.profile);
 
    
   useEffect(() => {
@@ -58,18 +59,22 @@ export default function Header() {
 
           
           <div className="d-flex align-items-center">
-            <img
-              src="https://res.cloudinary.com/dorv3lswe/image/upload/v1775886926/logo_xefmqf.png"
-              alt="Logo"
-              className="me-3 logo-img"
-              onClick={() => navigate("/")}
-              style={{ cursor: "pointer" }}
-            />
-            <span className="brand-name">EPHARMACY</span>
-            <div className="address-text d-none d-lg-block ms-3">
-              <span className="text-muted small">📍 5/167, Uttharappan Nagar, Salem-636010.</span>
-            </div>
-          </div>
+  <img
+    src="https://res.cloudinary.com/dorv3lswe/image/upload/v1775886926/logo_xefmqf.png"
+    alt="Logo"
+    className="me-3 logo-img"
+    onClick={() => navigate("/")}
+    style={{ cursor: "pointer" }}
+  />
+
+  <div className="d-flex flex-column">
+    <span className="brand-name">EPHARMACY</span>
+
+    <span className="text-muted" style={{ fontSize: "10px" }}>
+      Uttharappan Nagar, Salem-636010.
+    </span>
+  </div>
+</div>
 
          
           <div className="d-flex align-items-center gap-4 header-tools">
