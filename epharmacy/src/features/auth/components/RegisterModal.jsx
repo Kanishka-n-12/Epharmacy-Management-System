@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { register, clearMessages } from "../slice/authSlice";
+import { register} from "../slice/authThunks";
+import { clearMessages } from "../slice/authSlice";
 import Required from "../../../components/ui/Required";
 import Toast from "../../admin/components/Toast";
 

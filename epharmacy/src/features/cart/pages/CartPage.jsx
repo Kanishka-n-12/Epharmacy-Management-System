@@ -6,7 +6,7 @@ import {
   fetchCart, fetchCartSummary,
   removeItem, updateQty,
   saveForLater, moveToCart, deleteSaved
-} from "../slice/cartSlice";
+} from "../slice/cartThunks";
 
 import ProgressSteps from "../../deliveries/components/ProgressSteps";
 import CartList from "../components/CartList";

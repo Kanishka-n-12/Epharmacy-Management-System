@@ -1,12 +1,7 @@
-// pages/admin/UserManagementPage.jsx
+
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchUsers,
-  createUser,
-  updateUser,
-  toggleUserStatus,
-} from "../../users/slice/userSlice";
+import { fetchUsers, fetchUserStats, createUser, updateUser, toggleUserStatus } from "../../users/slice/userSlice"
 
 import AdminLayout    from "../layouts/AdminLayout";
 import StatisticsCard from "../components/StatisticsCard";
@@ -94,7 +89,9 @@ export default function UserManagementPage() {
     error: false,
   });
   const dispatch = useDispatch();
-  const { users, loading, error } = useSelector((s) => s.users);
+ 
+const { users, loading, error, totalPages, totalElements, stats: userStats = { total: 0, active: 0, inactive: 0, admin: 0, newToday: 0 } } = useSelector((s) => s.users);
+
 
   const [search,       setSearch]       = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -111,32 +108,24 @@ export default function UserManagementPage() {
   const [savingForm, setSavingForm] = useState(false);
 
 
-  useEffect(() => { dispatch(fetchUsers()); }, [dispatch]);
+  useEffect(() => {
+  dispatch(fetchUsers({ page: page - 1, size: PER_PAGE }));
+}, [dispatch, page]);
 
-  const filtered = users.filter((u) => {
-    const q    = search.toLowerCase();
-    const name = fullName(u).toLowerCase();
-    const matchQ  = !q || name.includes(q) ||
-      (u.email    || "").toLowerCase().includes(q) ||
-      (u.phone    || "").includes(q) ||
-      (u.username || "").toLowerCase().includes(q);
-    const matchSt = !statusFilter || u.status === statusFilter;
-    const matchRl = !roleFilter   || String(u.roleId ?? u.role) === roleFilter;
-    return matchQ && matchSt && matchRl;
-  }).slice().reverse() ;
+useEffect(() => {
+  dispatch(fetchUserStats());
+}, [dispatch]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
-  const safePage   = Math.min(page, totalPages);
-  const slice      = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+  const slice = [...users].reverse();
 
   const today = new Date().toISOString().slice(0, 10);
   const stats = [
-    { icon: "👥", value: users.length,                                                                        label: "Total Users",    color: "#52a468" },
-    { icon: "✅", value: users.filter((u) => u.status === "active").length,                                    label: "Active Users",   color: "#2980b9" },
-    { icon: "🚫", value: users.filter((u) => u.status === "inactive").length,                                  label: "Inactive Users", color: "#e74c3c" },
-    { icon: "👑", value: users.filter((u) => (u.roleId ?? u.role) === 1).length,                              label: "Admins",         color: "#8e44ad" },
-    { icon: "🆕", value: users.filter((u) => (u.createdAt || u.created || "").slice(0, 10) === today).length, label: "Added Today",    color: "#e67e22" },
-  ];
+  { icon: "👥", value: userStats.total,    label: "Total Users",    color: "#52a468" },
+  { icon: "✅", value: userStats.active,   label: "Active Users",   color: "#2980b9" },
+  { icon: "🚫", value: userStats.inactive, label: "Inactive Users", color: "#e74c3c" },
+  { icon: "👑", value: userStats.admin,    label: "Admins",         color: "#8e44ad" },
+  { icon: "🆕", value: userStats.newToday, label: "Added Today",    color: "#e67e22" },
+];  
 
   const handleFormChange = (field, value) => {
     setForm((f) => ({ ...f, [field]: value }));
@@ -199,6 +188,7 @@ export default function UserManagementPage() {
         showToast("User added successfully ✓");
       }
       closeEditModal();
+      dispatch(fetchUserStats());
     } catch (e) {
       showToast(e?.message || "Something went wrong.", true);
     } finally {
@@ -211,6 +201,7 @@ export default function UserManagementPage() {
       await dispatch(toggleUserStatus({ id: u.userId, currentStatus: u.status })).unwrap();
       const next = u.status === "active" ? "deactivated" : "activated";
       showToast(`${fullName(u)} ${next} ✓`);
+      dispatch(fetchUserStats());
     } catch {
       showToast("Status update failed.", true);
     }
@@ -220,7 +211,7 @@ export default function UserManagementPage() {
   const renderRow = (u, i) => {
     const roleId   = u.roleId ?? u.role;
     const isActive = u.status === "active";
-    const idx      = (safePage - 1) * PER_PAGE + i + 1;
+    const idx = (page - 1) * PER_PAGE + i + 1;
 
     const actions = [
       { label: "View", onClick: () => setViewUser(u) },
@@ -284,13 +275,22 @@ export default function UserManagementPage() {
       <main className="content">
         <div className="page-heading">
           <h1 className="page-title">User Management</h1>
-          <button
-            onClick={openAdd}
-            style={{ backgroundColor:"#52a468", color:"#fff", border:"none",
-              padding:"8px 16px", borderRadius:"6px", fontWeight:"600", cursor:"pointer" }}
-          >
-            + Add User
-          </button>
+          <div style={{ display: "flex", justifyContent: "flex-end", width: "100%" }}>
+  <button
+    onClick={openAdd}
+    style={{
+      backgroundColor: "#52a468",
+      color: "#fff",
+      border: "none",
+      padding: "8px 16px",
+      borderRadius: "6px",
+      fontWeight: "600",
+      cursor: "pointer"
+    }}
+  >
+    + Add User
+  </button>
+</div>
         </div>
 
         <section className="stats-grid">
@@ -312,9 +312,13 @@ export default function UserManagementPage() {
           />
 
           <Pagination
-            currentPage={safePage} totalPages={totalPages} totalItems={filtered.length}
-            itemsPerPage={PER_PAGE} onPageChange={setPage} itemLabel="users"
-          />
+  currentPage={page}
+  totalPages={totalPages}
+  totalItems={totalElements}
+  itemsPerPage={PER_PAGE}
+  onPageChange={setPage}
+  itemLabel="users"
+/>
         </div>
       </main>
 
@@ -322,9 +326,6 @@ export default function UserManagementPage() {
       {viewUser && (
         <Modal title="User Details" onClose={() => setViewUser(null)} size="lg">
           <UserViewDetail u={viewUser} />
-          <div className="modal-footer">
-            <button className="btn-cancel" onClick={() => setViewUser(null)}>Close</button>
-          </div>
         </Modal>
       )}
 
@@ -333,7 +334,7 @@ export default function UserManagementPage() {
         <Modal title={editingId ? "Edit User" : "Add New User"} onClose={closeEditModal} size="lg">
           <UserForm form={form} errors={formErrors} isEdit={!!editingId} onChange={handleFormChange} />
           <div className="modal-footer">
-            <button className="btn-cancel" onClick={() => { setForm(EMPTY_FORM); setFormErrors({}); }}>Reset</button>
+            <button className="btn-cancel btn btn-danger" style = {{margin:"10px"}}  onClick={() => { setForm(EMPTY_FORM); setFormErrors({}); }}>Reset</button>
             <button className="btn-save" onClick={handleSave} disabled={savingForm}>
               {savingForm ? "Saving…" : "Save User"}
             </button>

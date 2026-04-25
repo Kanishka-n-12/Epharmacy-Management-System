@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { logout } from "../../auth/slice/authSlice";
+import { logout } from "../../auth/slice/authThunks";
 import "./css/Header.css";
 import NotificationBell from "../../notifications/components/NotificationBell";
 
@@ -128,12 +128,18 @@ export default function Header({ onHamburger }) {
               
 
               <button
-              className="dropdown-item text-danger"
-              onClick={handleLogout}
-              disabled={loggingOut}
-            >
-              LOGOUT →
-            </button>
+  className="dropdown-item text-danger"
+  onClick={handleLogout}
+  disabled={loggingOut}
+  style={{
+    fontSize: "14px",
+    padding: "6px 12px",
+    width: "auto",
+    display: "inline-block"
+  }}
+>
+  LOGOUT →
+</button>
             </div>
           )}
         </div>

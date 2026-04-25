@@ -161,13 +161,14 @@ export default function OrdersPaymentManagementPage() {
   const pSlice      = filteredPayments.slice(pStart, pStart + PER_PAGE);
 
   function renderPaymentRow(p) {
-    const pStatus = (p.paymentStatus || "").toLowerCase();
-    const orderId = p.order?.orderId ?? p.orderId ?? "—";
+    const pStatus = (p.status || "").toLowerCase();
+    const orderId =  p.orderId;
     const actions = [{ label: "View Details", className: "dd-view", onClick: () => setViewPayModal({ open: true, payment: p }) }];
     return (
       <DataRow key={p.paymentId}>
-        <td><span className="id-badge">#{p.paymentId}</span></td>
-        <td><span className="id-badge">#{orderId}</span></td>
+        <td><span className="id-badge">#{p.paymentId}</span></td> 
+        {console.log(p.order?.orderId)}
+        <td><span className="id-badge">{orderId}</span></td>
         <td style={{ fontSize: 11.5, fontFamily: "monospace", color: "var(--text-mid)" }}>{p.transactionId || "—"}</td>
         <td><span className="method-chip">{p.paymentMethod || "—"}</span></td>
         <td className="amount-cell">₹{Number(p.paymentAmount ?? p.amount ?? 0).toFixed(2)}</td>
@@ -248,8 +249,8 @@ export default function OrdersPaymentManagementPage() {
               <div className="odh-row"><span className="odh-label">Order Status</span><StatusBadge status={(o.orderStatus||"").toLowerCase()} preset="order" /></div>
               <div className="odh-row"><span className="odh-label">Payment Status</span><StatusBadge status={(o.paymentStatus||"").toLowerCase()} preset="payment" /></div>
             </div>
-            <div className="admin-modal-footer"><button className="btn-cancel" onClick={() => setViewOrderModal({ open: false, order: null })}>Close</button></div>
-          </Modal>
+            
+            </Modal>
         );
       })()}
 
@@ -264,7 +265,7 @@ export default function OrdersPaymentManagementPage() {
             </select>
           </div>
           <div className="admin-modal-footer">
-            <button className="btn-cancel" onClick={() => setUpdateModal({ open: false, order: null })}>Cancel</button>
+            
             <button className="btn-save" onClick={confirmOrderStatus} disabled={actionLoading}>{actionLoading ? "Updating…" : "Update Status"}</button>
           </div>
         </Modal>
@@ -287,9 +288,7 @@ export default function OrdersPaymentManagementPage() {
                 <span className="pay-detail-label">Status</span>
                 <StatusBadge status={(p.paymentStatus||"").toLowerCase()} preset="payment" />
               </div>
-            </div>
-            <div className="admin-modal-footer"><button className="btn-cancel" onClick={() => setViewPayModal({ open: false, payment: null })}>Close</button></div>
-          </Modal>
+            </div></Modal>
         );
       })()}
 

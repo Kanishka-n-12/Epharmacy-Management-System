@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { logout } from "../../../features/auth/slice/authSlice";
+import { logout } from "../../../features/auth/slice/authThunks";
 import "./css/SideNavbar.css";
 
 const NAV = [

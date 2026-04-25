@@ -1,7 +1,7 @@
 // features/profile/components/ProfileSidebar.jsx
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../../auth/slice/authSlice";
+import { logout } from "../../auth/slice/authThunks";
 import { useNavigate } from "react-router-dom";
 import "../css/ProfileSidebar.css";
 

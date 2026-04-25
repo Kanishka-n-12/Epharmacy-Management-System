@@ -224,7 +224,6 @@ export default function PrescriptionManagementPage() {
             )}
 
             <div className="admin-modal-footer">
-              <button className="btn-cancel" onClick={() => setViewModal({ open: false, prescription: null })}>Close</button>
             </div>
           </Modal>
         );

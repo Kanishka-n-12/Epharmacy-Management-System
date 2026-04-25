@@ -7,9 +7,9 @@ import userService from "../services/userService";
 ───────────────────────────────────────── */
 export const fetchUsers = createAsyncThunk(
   "users/fetchUsers",
-  async (_, thunkAPI) => {
+  async ({ page = 0, size = 10 } = {}, thunkAPI) => {
     try {
-      return await userService.fetchAll();
+      return await userService.fetchAll(page, size);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data ?? err.message);
     }
@@ -51,16 +51,29 @@ export const toggleUserStatus = createAsyncThunk(
   }
 );
 
+export const fetchUserStats = createAsyncThunk(
+  "users/fetchUserStats",
+  async (_, thunkAPI) => {
+    try {
+      return await userService.fetchStats();
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data ?? err.message);
+    }
+  }
+);
+
 /* ─────────────────────────────────────────
    SLICE
 ───────────────────────────────────────── */
 const userSlice = createSlice({
   name: "users",
   initialState: {
-    users: [],
-    loading: false,
-    error: null,
-  },
+  users: [],
+  totalPages: 1,
+  totalElements: 0,
+  loading: false,
+  error: null,
+},
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -70,15 +83,19 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchUsers.fulfilled, (state, action) => {
-        state.loading = false;
-        state.users = action.payload;
-      })
+  state.loading = false;
+  state.users = action.payload.content || [];
+  state.totalPages = action.payload.totalPages;
+  state.totalElements = action.payload.totalElements;
+  state.pageStats = action.payload.pageStats; // optional
+})
       .addCase(fetchUsers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-
-      /* ── createUser ── */
+      .addCase(fetchUserStats.fulfilled, (state, action) => {
+        state.stats = action.payload;
+      })
       .addCase(createUser.fulfilled, (state, action) => {
         state.users.push(action.payload);
       })

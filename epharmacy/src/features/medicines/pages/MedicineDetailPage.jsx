@@ -1,10 +1,10 @@
-// src/features/medicines/pages/MedicineDetailPage.jsx
+
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { fetchMedicineById } from "../slices/medicineSlice";
-import { addToCart, updateQty, removeItem } from "../../cart/slice/cartSlice";
+import { addToCart, updateQty, removeItem } from "../../cart/slice/cartThunks";
 import Toast from "../../admin/components/Toast";
 
 import "../css/MedicineDetailPage.css";

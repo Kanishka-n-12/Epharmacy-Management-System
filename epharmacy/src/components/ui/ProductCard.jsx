@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart, updateQty, removeItem } from "../../features/cart/slice/cartSlice";
+import { addToCart, updateQty, removeItem } from "../../features/cart/slice/cartThunks";
 import Toast from "../../features/admin/components/Toast";
 
 export default function ProductCard({

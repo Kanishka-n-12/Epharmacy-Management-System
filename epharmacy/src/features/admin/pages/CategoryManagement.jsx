@@ -1,4 +1,3 @@
-
 import AdminLayout    from "../layouts/AdminLayout";
 import StatisticsCard from "../components/StatisticsCard";
 import DataTable      from "../components/DataTable";
@@ -16,7 +15,6 @@ import {
 import TableToolbar      from "../components/TableToolbar";
 import AdminConfirmModal from "../components/AdminConfirmModal";
 import StatusBadge       from "../components/StatusBadge";
-import Required from "../../../components/ui/Required";
 
 const PER_PAGE = 10;
 
@@ -27,31 +25,19 @@ const COLUMNS = [
 
 const EMPTY_FORM = { name: "", status: "" };
 
-function applyFilter(categories, search, statusFilter) {
-  return categories.filter((c) => {
-    const matchSearch = !search || c.name.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = !statusFilter || c.status?.toLowerCase() === statusFilter.toLowerCase();
-    return matchSearch && matchStatus;
-  });
-}
-
-
 export default function CategoryManagement() {
 
-function showToast(msg, error = false) {
-  setToast({ show: true, msg, error });
+  function showToast(msg, error = false) {
+    setToast({ show: true, msg, error });
+    setTimeout(() => {
+      setToast({ show: false, msg: "", error: false });
+    }, 3000);
+  }
 
-  setTimeout(() => {
-    setToast({ show: false, msg: "", error: false });
-  }, 3000);
-}
-  const [toast, setToast] = useState({
-  show: false,
-  msg: "",
-  error: false,
-});
+  const [toast, setToast] = useState({ show: false, msg: "", error: false });
+
   const dispatch = useDispatch();
-  const { categories, stats, loading, adminLoading, adminError } = useSelector(
+  const { categories, stats, loading, adminLoading, adminError, totalPages, totalElements } = useSelector(
     (s) => s.categories
   );
 
@@ -66,20 +52,12 @@ function showToast(msg, error = false) {
 
   const [deactivateModal, setDeactivateModal] = useState({ open: false, id: null, name: "" });
 
-  
-
   useEffect(() => {
-    dispatch(fetchCategories());
+    dispatch(fetchCategories({ page: page - 1, size: PER_PAGE }));
     dispatch(fetchCategoryStats());
-  }, [dispatch]);
+  }, [dispatch, page]);
 
-  const filtered   = applyFilter(categories, search, statusFilter).slice().reverse();
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
-  const safePage   = Math.min(page, totalPages);
-  const start      = (safePage - 1) * PER_PAGE;
-  const pageSlice  = filtered.slice(start, start + PER_PAGE);
-
-  useEffect(() => { setPage(1); }, [search, statusFilter]);
+  const slice = [...categories].reverse();
 
   function openAddModal() {
     setEditingId(null); setForm(EMPTY_FORM); setFormErrors({}); setModalOpen(true);
@@ -110,7 +88,8 @@ function showToast(msg, error = false) {
       const result = await dispatch(updateCategory({ id: editingId, payload: { name: form.name.trim(), status: form.status } }));
       if (updateCategory.fulfilled.match(result)) {
         showToast("Category updated successfully");
-        dispatch(fetchCategoryStats()); dispatch(fetchCategories());
+        dispatch(fetchCategoryStats());
+        dispatch(fetchCategories({ page: page - 1, size: PER_PAGE }));
       } else {
         showToast(result.payload || "Update failed", true);
       }
@@ -118,7 +97,8 @@ function showToast(msg, error = false) {
       const result = await dispatch(addCategory({ categoryName: form.name.trim() }));
       if (addCategory.fulfilled.match(result)) {
         showToast("Category added successfully");
-        dispatch(fetchCategoryStats()); dispatch(fetchCategories());
+        dispatch(fetchCategoryStats());
+        dispatch(fetchCategories({ page: page - 1, size: PER_PAGE }));
       } else {
         showToast(result.payload || "Add failed", true);
       }
@@ -127,37 +107,35 @@ function showToast(msg, error = false) {
   }
 
   async function confirmDeactivate() {
-  try {
-    await dispatch(
-      updateCategoryStatus({ id: deactivateModal.id, status: "inactive" })
-    ).unwrap();
-
-    showToast(`"${deactivateModal.name}" has been deactivated`);
-    dispatch(fetchCategoryStats());
-    dispatch(fetchCategories());
-
-    setDeactivateModal({ open: false, id: null, name: "" });
-  } catch (err) {
-    showToast(err || "Failed to deactivate category", true);
+    try {
+      await dispatch(
+        updateCategoryStatus({ id: deactivateModal.id, status: "inactive" })
+      ).unwrap();
+      showToast(`"${deactivateModal.name}" has been deactivated`);
+      dispatch(fetchCategoryStats());
+      dispatch(fetchCategories({ page: page - 1, size: PER_PAGE }));
+      setDeactivateModal({ open: false, id: null, name: "" });
+    } catch (err) {
+      showToast(err || "Failed to deactivate category", true);
+    }
   }
-}
 
   async function handleActivate(cat) {
-  try {
-    await dispatch(
-      updateCategoryStatus({ id: cat.id, status: "active" })
-    ).unwrap();
-
-    showToast(`"${cat.name}" has been activated`);
-    dispatch(fetchCategoryStats());
-    dispatch(fetchCategories());
-  } catch (err) {
-    showToast(err || "Failed to activate category", true);
+    try {
+      await dispatch(
+        updateCategoryStatus({ id: cat.id, status: "active" })
+      ).unwrap();
+      showToast(`"${cat.name}" has been activated`);
+      dispatch(fetchCategoryStats());
+      dispatch(fetchCategories({ page: page - 1, size: PER_PAGE }));
+    } catch (err) {
+      showToast(err || "Failed to activate category", true);
+    }
   }
-}
 
   function renderRow(cat, index) {
     const isActive = cat.status?.toLowerCase() === "active";
+    const idx = (page - 1) * PER_PAGE + index + 1;
     const actions = [
       { label: "Edit", onClick: () => openEditModal(cat) },
       isActive
@@ -167,7 +145,7 @@ function showToast(msg, error = false) {
 
     return (
       <DataRow key={cat.id}>
-        <td className="td-num">{start + index + 1}</td>
+        <td className="td-num">{idx}</td>
         <td className="td-name">{cat.name}</td>
         <td>
           <StatusBadge status={cat.status} preset="user" />
@@ -195,19 +173,28 @@ function showToast(msg, error = false) {
       <main className="content">
         <div className="page-heading">
           <h1 className="page-title">Category Management</h1>
-          <button
-            onClick={openAddModal}
-            style={{ backgroundColor:"#52a468", color:"#fff", border:"none",
-              padding:"8px 16px", borderRadius:"6px", fontWeight:"600", cursor:"pointer" }}
-          >
-            + Add Category
-          </button>
+          <div style={{ display: "flex", justifyContent: "flex-end", width: "100%" }}>
+            <button
+              onClick={openAddModal}
+              style={{
+                backgroundColor: "#52a468",
+                color: "#fff",
+                border: "none",
+                padding: "8px 16px",
+                borderRadius: "6px",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+            >
+              + Add Category
+            </button>
+          </div>
         </div>
 
         <section className="stats-grid">
-          <StatisticsCard icon="📄" value={stats?.total    ?? categories.length}                                                          label="Total Categories" color="#52a468" />
-          <StatisticsCard icon="✓"  value={stats?.active   ?? categories.filter((c) => c.status?.toLowerCase() === "active").length}   label="Active"           color="#2980b9" />
-          <StatisticsCard icon="⊘"  value={stats?.inactive ?? categories.filter((c) => c.status?.toLowerCase() === "inactive").length} label="Inactive"         color="#e74c3c" />
+          <StatisticsCard icon="📄" value={stats?.total    ?? 0} label="Total Categories" color="#52a468" />
+          <StatisticsCard icon="✓"  value={stats?.active   ?? 0} label="Active"           color="#2980b9" />
+          <StatisticsCard icon="⊘"  value={stats?.inactive ?? 0} label="Inactive"         color="#e74c3c" />
         </section>
 
         <div className="table-card">
@@ -220,14 +207,18 @@ function showToast(msg, error = false) {
           />
 
           <DataTable
-            columns={COLUMNS} data={pageSlice} renderRow={renderRow}
+            columns={COLUMNS} data={slice} renderRow={renderRow}
             loading={loading} error={adminError ? { message: adminError } : null}
             emptyMessage="No categories found."
           />
 
           <Pagination
-            currentPage={safePage} totalPages={totalPages} totalItems={filtered.length}
-            itemsPerPage={PER_PAGE} onPageChange={setPage} itemLabel="categories"
+            currentPage={page}
+            totalPages={totalPages}
+            totalItems={totalElements}
+            itemsPerPage={PER_PAGE}
+            onPageChange={setPage}
+            itemLabel="categories"
           />
         </div>
       </main>

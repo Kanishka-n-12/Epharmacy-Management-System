@@ -28,6 +28,22 @@ export const fetchPrescription = createAsyncThunk(
   }
 );
 
+/**
+ * Sends a file to the backend for OCR scanning.
+ * On success, stores the OcrResultDTO in state.ocrResult so the
+ * UploadPrescriptionModal can pre-fill the review form.
+ */
+export const scanPrescription = createAsyncThunk(
+  "userPrescriptions/scan",
+  async (file, thunkAPI) => {
+    try {
+      return await prescriptionService.scanPrescription(file);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data ?? err.message);
+    }
+  }
+);
+
 export const uploadPrescription = createAsyncThunk(
   "userPrescriptions/upload",
   async (dto, thunkAPI) => {
@@ -59,10 +75,17 @@ const prescriptionSlice = createSlice({
   initialState: {
     prescriptions: [],
     selectedPrescription: null,
+
     loading: false,
     detailLoading: false,
     uploading: false,
     deleting: false,
+
+    /** OCR scan state */
+    scanning: false,
+    ocrResult: null,   // OcrResultDTO from backend
+    scanError: null,
+
     error: null,
     uploadError: null,
     uploadSuccess: null,
@@ -80,6 +103,12 @@ const prescriptionSlice = createSlice({
     clearDeleteMessages(state) {
       state.deleteError = null;
       state.deleteSuccess = null;
+    },
+    /** Reset OCR state when the modal is closed */
+    clearOcrResult(state) {
+      state.ocrResult = null;
+      state.scanError = null;
+      state.scanning = false;
     },
   },
   extraReducers: (builder) => {
@@ -110,6 +139,24 @@ const prescriptionSlice = createSlice({
         state.detailLoading = false;
       })
 
+      /* ── scanPrescription ── */
+      .addCase(scanPrescription.pending, (state) => {
+        state.scanning = true;
+        state.ocrResult = null;
+        state.scanError = null;
+      })
+      .addCase(scanPrescription.fulfilled, (state, action) => {
+        state.scanning = false;
+        state.ocrResult = action.payload;
+      })
+      .addCase(scanPrescription.rejected, (state, action) => {
+        state.scanning = false;
+        state.scanError =
+          typeof action.payload === "string"
+            ? action.payload
+            : action.payload?.message || "OCR scan failed.";
+      })
+
       /* ── uploadPrescription ── */
       .addCase(uploadPrescription.pending, (state) => {
         state.uploading = true;
@@ -120,6 +167,7 @@ const prescriptionSlice = createSlice({
         state.uploading = false;
         state.prescriptions.unshift(action.payload);
         state.uploadSuccess = "Prescription uploaded successfully!";
+        state.ocrResult = null; // clear after successful submit
       })
       .addCase(uploadPrescription.rejected, (state, action) => {
         state.uploading = false;
@@ -154,6 +202,7 @@ export const {
   clearSelectedPrescription,
   clearUploadMessages,
   clearDeleteMessages,
+  clearOcrResult,
 } = prescriptionSlice.actions;
 
 export default prescriptionSlice.reducer;

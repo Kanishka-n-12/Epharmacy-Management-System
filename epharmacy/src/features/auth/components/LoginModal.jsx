@@ -2,29 +2,25 @@ import { useState } from "react";
 import { Modal } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { login } from "../slice/authSlice";
+import { login } from "../slice/authThunks";
 import Required from "../../../components/ui/Required";
 import Toast from "../../admin/components/Toast";
 
 const phoneRegex = /^[6-9][0-9]{9}$/;
 
-export default function LoginModal({
-  show,
-  onClose,
-  onSwitchToRegister,
-  onSwitchToForgot,
-}) {
+export default function LoginModal({ show, onClose, onSwitchToRegister, onSwitchToForgot }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
   const { loading } = useSelector((state) => state.auth);
 
-  const [phone, setPhone] = useState("");
+  const [phone,    setPhone]    = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [toast, setToast] = useState({ show: false, msg: "", type: "success" });
+  const [errors,   setErrors]   = useState({});
+  const [apiError, setApiError] = useState("");
+  const [toast,    setToast]    = useState({ show: false, msg: "", type: "success" });
 
   function showToast(msg, type = "success") {
     setToast({ show: true, msg, type });
@@ -34,8 +30,7 @@ export default function LoginModal({
   function validate() {
     const e = {};
     if (!phone) e.phone = "Phone number cannot be empty";
-    else if (!phoneRegex.test(phone))
-      e.phone = "Must be 10 digits, starts with 6-9";
+    else if (!phoneRegex.test(phone)) e.phone = "Must be 10 digits, starts with 6-9";
     if (!password) e.password = "Password cannot be empty";
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -43,6 +38,7 @@ export default function LoginModal({
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setApiError("");
     if (!validate()) return;
 
     const result = await dispatch(login({ phone, password }));
@@ -62,11 +58,7 @@ export default function LoginModal({
     }
 
     if (login.rejected.match(result)) {
-      const msg =
-        typeof result.payload === "string"
-          ? result.payload
-          : "Invalid credentials";
-      showToast(msg, "error");
+      setApiError(typeof result.payload === "string" ? result.payload : "Invalid credentials");
     }
   }
 
@@ -74,20 +66,18 @@ export default function LoginModal({
     setPhone("");
     setPassword("");
     setErrors({});
+    setApiError("");
   }
 
   return (
     <>
-      <Toast show={toast.show} msg={toast.msg} type={toast.type} />
+      
 
       <Modal show={show} onHide={onClose} centered backdrop="static" keyboard={false}>
         <div className="modal-content login-modal-content p-4">
+          <Toast show={toast.show} msg={toast.msg} type={toast.type} />
           <div className="modal-header border-0 pb-0 justify-content-center position-relative">
-            <button
-              type="button"
-              className="btn-close position-absolute top-0 end-0 m-2"
-              onClick={onClose}
-            />
+            <button type="button" className="btn-close position-absolute top-0 end-0 m-2" onClick={onClose} />
             <div className="d-flex flex-column align-items-center gap-1">
               <img
                 src="https://res.cloudinary.com/dorv3lswe/image/upload/v1775886926/logo_xefmqf.png"
@@ -106,8 +96,17 @@ export default function LoginModal({
               Login with your phone number
             </p>
 
+            {apiError && (
+              <div style={{
+                background: "#fce4e4", color: "#c62828", fontSize: "0.78rem",
+                fontWeight: 600, padding: "10px 14px", borderRadius: 8,
+                marginBottom: 16, textAlign: "left", border: "1px solid #f5c6c6",
+              }}>
+                 {apiError}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} noValidate autoComplete="off">
-              {/* PHONE */}
               <div className="mb-3 text-start">
                 <label className="form-label fw-bold" style={{ fontSize: "0.78rem" }}>
                   Phone Number <Required />
@@ -118,12 +117,11 @@ export default function LoginModal({
                   className={`form-control login-input ${errors.phone ? "is-invalid-input" : ""}`}
                   placeholder="Enter phone number"
                   value={phone}
-                  onChange={(e) => { setPhone(e.target.value); setErrors((p) => ({ ...p, phone: "" })); }}
+                  onChange={(e) => { setPhone(e.target.value); setErrors((p) => ({ ...p, phone: "" })); setApiError(""); }}
                 />
                 {errors.phone && <div className="text-danger" style={{ fontSize: "0.7rem" }}>{errors.phone}</div>}
               </div>
 
-              {/* PASSWORD */}
               <div className="mb-1 text-start">
                 <label className="form-label fw-bold" style={{ fontSize: "0.78rem" }}>
                   Password <Required />
@@ -135,7 +133,7 @@ export default function LoginModal({
                     placeholder="Enter password"
                     value={password}
                     style={{ paddingRight: "40px" }}
-                    onChange={(e) => { setPassword(e.target.value); setErrors((p) => ({ ...p, password: "" })); }}
+                    onChange={(e) => { setPassword(e.target.value); setErrors((p) => ({ ...p, password: "" })); setApiError(""); }}
                   />
                   <span
                     onClick={() => setShowPass((v) => !v)}
@@ -163,7 +161,6 @@ export default function LoginModal({
                 {errors.password && <div className="text-danger" style={{ fontSize: "0.7rem" }}>{errors.password}</div>}
               </div>
 
-              {/* FORGOT PASSWORD */}
               <div className="text-start mb-3">
                 <a href="#" style={{ fontSize: "0.75rem", color: "rgb(87,149,242)", textDecoration: "none" }}
                   onClick={(e) => { e.preventDefault(); onClose(); onSwitchToForgot?.(); }}>
@@ -171,7 +168,6 @@ export default function LoginModal({
                 </a>
               </div>
 
-              {/* BUTTONS */}
               <div className="d-flex justify-content-center gap-3">
                 <button type="submit" className="btn btn-login px-4" disabled={loading}>
                   {loading ? "LOGGING IN…" : "LOGIN"}

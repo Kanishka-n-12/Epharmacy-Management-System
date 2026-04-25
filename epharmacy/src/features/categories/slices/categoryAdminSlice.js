@@ -13,9 +13,12 @@ import axios from "axios";
 
 export const fetchCategories = createAsyncThunk(
   "categories/fetchCategories",
-  async () => {
-    const data = await getAllCategoriesAdmin();
-    return data;
+  async ({ page = 0, size = 10 } = {}, { rejectWithValue }) => {
+    try {
+      return await getAllCategoriesAdmin(page, size);
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message ?? err.message);
+    }
   }
 );
 
@@ -92,6 +95,8 @@ const categorySlice = createSlice({
   initialState: {
     categories: [],
     selectedCategory: null,
+    totalPages: 1,        
+  totalElements: 0, 
     loading: false,
     error: null,
     categoryMedicines: [],
@@ -111,9 +116,11 @@ const categorySlice = createSlice({
         state.error = null;
       })
       .addCase(fetchCategories.fulfilled, (state, { payload }) => {
-        state.loading = false;
-        state.categories = payload;
-      })
+  state.loading = false;
+  state.categories = payload.content ?? payload ?? []; 
+  state.totalPages = payload.totalPages ?? 1;
+  state.totalElements = payload.totalElements ?? 0;
+})
       .addCase(fetchCategories.rejected, (state, { error }) => {
         state.loading = false;
         state.error = error.message;

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { forgotPassword, clearMessages } from "../slice/authSlice";
+import { forgotPassword } from "../slice/authThunks";
 import Required from "../../../components/ui/Required";
 import Toast from "../../admin/components/Toast";
+import { clearMessages } from "../slice/authSlice";
 
 const phoneRegex = /^[6-9][0-9]{9}$/;
 

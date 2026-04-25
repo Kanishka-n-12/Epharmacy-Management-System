@@ -10,7 +10,9 @@ import {
   clearAddressMessages,
 } from "../slice/addressSlice";
 
-import { setPendingOrderId, placeOrder } from "../../cart/slice/cartSlice"
+import {  placeOrder } from "../../cart/slice/cartThunks"
+
+import {setPendingOrderId} from "../../cart/slice/cartSlice"
 
 
 import ProgressSteps   from "../components/ProgressSteps";

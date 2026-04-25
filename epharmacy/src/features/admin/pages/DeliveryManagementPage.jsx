@@ -214,7 +214,6 @@ export default function DeliveryManagementPage() {
             </div>
           </div>
           <div className="admin-modal-footer">
-            <button className="btn-cancel" onClick={() => setViewModal({ open: false, delivery: null })}>Close</button>
           </div>
         </Modal>
       )}
@@ -237,7 +236,6 @@ export default function DeliveryManagementPage() {
             </div>
           )}
           <div className="admin-modal-footer">
-            <button className="btn-cancel" onClick={() => setStatusModal({ open: false, delivery: null, newStatus: "" })}>Discard</button>
             <button className="btn-save" onClick={saveStatus} disabled={adminLoading}>{adminLoading ? "Saving…" : "Save"}</button>
           </div>
         </Modal>

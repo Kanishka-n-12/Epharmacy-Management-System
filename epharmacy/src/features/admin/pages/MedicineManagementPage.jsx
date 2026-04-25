@@ -567,10 +567,22 @@ export default function MedicineManagementPage() {
             <h1 className="page-title">Medicine Management</h1>
             <p style={{ fontSize:12, color:"var(--text-muted)", marginTop:3 }}>Click ▾ on any row to view &amp; manage its batches</p>
           </div>
-          <button onClick={openAddMed}
-            style={{ backgroundColor:"#52a468", color:"#fff", border:"none", padding:"8px 16px", borderRadius:"6px", fontWeight:"600", cursor:"pointer" }}>
-            + Add Medicine
-          </button>
+          <div style={{ display: "flex", justifyContent: "flex-end", width: "100%" }}>
+  <button
+    onClick={openAddMed}
+    style={{
+      backgroundColor: "#52a468",
+      color: "#fff",
+      border: "none",
+      padding: "8px 16px",
+      borderRadius: "6px",
+      fontWeight: "600",
+      cursor: "pointer"
+    }}
+  >
+    + Add Medicine
+  </button>
+</div>
         </div>
 
         <section className="stats-grid" style={{ gridTemplateColumns:"repeat(3, 1fr)" }}>

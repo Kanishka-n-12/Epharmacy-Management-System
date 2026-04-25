@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
-import { logout } from "../../features/auth/slice/authSlice";
+import { logout } from "../../features/auth/slice/authThunks";
 import "./css/UserDropdown.css";
 
 export default function UserDropdown() {

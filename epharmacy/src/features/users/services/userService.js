@@ -1,11 +1,13 @@
-// features/users/userService.js
+
 import api from "../../../api";
 
 const userService = {
-  /** GET /admin/users */
-  fetchAll: () => api.get("/admin/users").then((r) => r.data),
+  fetchAll: (page = 0, size = 10) =>
+  api.get(`/admin/users?page=${page}&size=${size}`).then(r => r.data),
+  
+  fetchStats: () =>
+    api.get("/admin/users/stats").then(r => r.data),
 
-  /** POST /admin/users */
   create: (userData) =>
     api
       .post("/admin/users", {
@@ -16,10 +18,8 @@ const userService = {
       })
       .then((r) => r.data),
 
-  /** PUT /admin/users/:id */
   update: (id, data) => api.put(`/admin/users/${id}`, data).then((r) => r.data),
 
-  /** PATCH /admin/users/:id/active|inactive */
   setStatus: (id, newStatus) =>
     api.patch(`/admin/users/${id}/${newStatus}`).then((r) => r.data),
 };

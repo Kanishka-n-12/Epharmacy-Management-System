@@ -4,8 +4,8 @@ import { useState, useEffect }       from "react";
 import { useSelector, useDispatch }  from "react-redux";
 import { useNavigate }               from "react-router-dom";
 
-import { logout }                  from "../../../features/auth/slice/authSlice";
-import { fetchCartCount }          from "../../../features/cart/slice/cartSlice";
+import { logout }                  from "../../../features/auth/slice/authThunks";
+import { fetchCartCount }          from "../../../features/cart/slice/cartThunks";
 import LoginModal                  from "../../../features/auth/components/LoginModal";
 import RegisterModal               from "../../../features/auth/components/RegisterModal";
 import ForgotPasswordModal         from "../../../features/auth/components/ForgotPasswordModal";

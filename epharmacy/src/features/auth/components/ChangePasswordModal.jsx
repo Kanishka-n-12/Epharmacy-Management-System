@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { resetPassword, clearMessages } from "../slice/authSlice";
+import { resetPassword} from "../slice/authThunks";
 import Required from "../../../components/ui/Required";
 import Toast from "../../admin/components/Toast";
+import { clearMessages } from "../slice/authSlice";
 
 const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 const LOGO_URL = "https://res.cloudinary.com/dorv3lswe/image/upload/v1775886926/logo_xefmqf.png";

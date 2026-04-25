@@ -13,5 +13,5 @@ export const updateCategoryStatusAdmin = (id, status) =>
 export const getCategoryStatsAdmin = () =>
   api.get("/admin/categories/stats").then((r) => r.data);
 
-export const getAllCategoriesAdmin = ()=>
-  api.get("/admin/categories").then((r)=>r.data);
+export const getAllCategoriesAdmin = (page = 0, size = 10) =>
+  api.get(`/admin/categories?page=${page}&size=${size}`).then((r) => r.data);
