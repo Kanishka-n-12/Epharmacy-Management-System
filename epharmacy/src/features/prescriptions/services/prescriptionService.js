@@ -34,6 +34,12 @@ const prescriptionService = {
 
   deletePrescription: (id) =>
     api.delete(`/prescriptions/${id}`).then((r) => r.data),
+
+
+  getFileUrl: (prescriptionId) => {
+  if (!prescriptionId) return null;
+  return `http://localhost:8080/api/prescriptions/${prescriptionId}/file`;
+},
 };
 
 export default prescriptionService;

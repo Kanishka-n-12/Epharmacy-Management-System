@@ -6,8 +6,9 @@ import {
   markAsRead,
   createNotification,
   fetchSentNotifications,
-} from "../slice/notificationSlice";
-import { fetchUsers } from "../../users/slice/userSlice";
+  broadcastNotification,
+} from "../slice/notificationThunks";
+import { fetchUsers } from "../../users/slice/userThunks";
 
 import "../css/Notification.css";
 
@@ -40,6 +41,11 @@ export default function NotificationBell() {
   const [sending, setSending]         = useState(false);
   const [sendSuccess, setSendSuccess] = useState("");
 
+  const [broadcastMsg, setBroadcastMsg]         = useState("");
+const [broadcastErr, setBroadcastErr]         = useState("");
+const [broadcastSuccess, setBroadcastSuccess] = useState("");
+const [broadcasting, setBroadcasting]         = useState(false);
+
   useEffect(() => {
     if (isAuthenticated) dispatch(fetchNotificationCount());
   }, [isAuthenticated, dispatch]);
@@ -66,13 +72,14 @@ export default function NotificationBell() {
   }
 
   function switchTab(t) {
-    setTab(t);
-    if (t === TAB_SENT && isAdmin) dispatch(fetchSentNotifications());
-    if (t === TAB_SEND) {
-      setPhone(""); setMessage("");
-      setPhoneError(""); setMsgError(""); setSendSuccess("");
-    }
+  setTab(t);
+  if (t === TAB_SENT && isAdmin) dispatch(fetchSentNotifications());
+  if (t === TAB_SEND) {
+    setPhone(""); setMessage("");
+    setPhoneError(""); setMsgError(""); setSendSuccess("");
+    setBroadcastMsg(""); setBroadcastErr(""); setBroadcastSuccess("");
   }
+}
 
   function handleMarkRead(n) {
     if (!isUnreadStatus(n.status)) return;
@@ -117,6 +124,24 @@ export default function NotificationBell() {
       setSending(false);
     }
   }
+
+  async function handleBroadcast() {
+  setBroadcastErr(""); setBroadcastSuccess("");
+  if (!broadcastMsg.trim()) { setBroadcastErr("Message is required."); return; }
+  if (broadcastMsg.trim().length < 3) { setBroadcastErr("Message must be at least 3 characters."); return; }
+
+  setBroadcasting(true);
+  try {
+    await dispatch(broadcastNotification({ message: broadcastMsg.trim() })).unwrap();
+    setBroadcastSuccess("Broadcast sent to all users!");
+    setBroadcastMsg("");
+    dispatch(fetchSentNotifications());
+  } catch (err) {
+    setBroadcastErr(err?.message || "Broadcast failed. Try again.");
+  } finally {
+    setBroadcasting(false);
+  }
+}
 
 
   function formatDate(dateStr) {
@@ -230,54 +255,86 @@ export default function NotificationBell() {
           )}
 
           {tab === TAB_SEND && isAdmin && (
-            <div className="notif-compose">
-              <p className="notif-compose-hint">
-                Enter the recipient's phone number and your message.
-              </p>
+  <div className="notif-compose">
+    <p className="notif-compose-hint">
+      Send to a specific user by phone number.
+    </p>
 
-              <div className="notif-field">
-                <label className="notif-label">Recipient Phone <span className="req">*</span></label>
-                <input
-                  className={`notif-input${phoneError ? " notif-input-err" : ""}`}
-                  type="tel"
-                  placeholder="10-digit mobile number"
-                  maxLength={10}
-                  value={phone}
-                  onChange={(e) => {
-                    setPhone(e.target.value.replace(/\D/g, ""));
-                    if (phoneError) setPhoneError("");
-                    if (sendSuccess) setSendSuccess("");
-                  }}
-                />
-                {phoneError && <div className="notif-err">{phoneError}</div>}
-              </div>
+    <div className="notif-field">
+      <label className="notif-label">Recipient Phone <span className="req">*</span></label>
+      <input
+        className={`notif-input${phoneError ? " notif-input-err" : ""}`}
+        type="tel"
+        placeholder="10-digit mobile number"
+        maxLength={10}
+        value={phone}
+        onChange={(e) => {
+          setPhone(e.target.value.replace(/\D/g, ""));
+          if (phoneError) setPhoneError("");
+          if (sendSuccess) setSendSuccess("");
+        }}
+      />
+      {phoneError && <div className="notif-err">{phoneError}</div>}
+    </div>
 
-              <div className="notif-field">
-                <label className="notif-label">Message <span className="req">*</span></label>
-                <textarea
-                  className={`notif-textarea${msgError ? " notif-input-err" : ""}`}
-                  placeholder="Type your notification message…"
-                  rows={4}
-                  value={message}
-                  onChange={(e) => {
-                    setMessage(e.target.value);
-                    if (msgError) setMsgError("");
-                    if (sendSuccess) setSendSuccess("");
-                  }}
-                />
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  {msgError ? <div className="notif-err">{msgError}</div> : <span />}
-                  <span style={{ fontSize: 10, color: "#aaa" }}>{message.length}/500</span>
-                </div>
-              </div>
+    <div className="notif-field">
+      <label className="notif-label">Message <span className="req">*</span></label>
+      <textarea
+        className={`notif-textarea${msgError ? " notif-input-err" : ""}`}
+        placeholder="Type your notification message…"
+        rows={4}
+        value={message}
+        onChange={(e) => {
+          setMessage(e.target.value);
+          if (msgError) setMsgError("");
+          if (sendSuccess) setSendSuccess("");
+        }}
+      />
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        {msgError ? <div className="notif-err">{msgError}</div> : <span />}
+        <span style={{ fontSize: 10, color: "#aaa" }}>{message.length}/500</span>
+      </div>
+    </div>
 
-              {sendSuccess && <div className="notif-success">{sendSuccess}</div>}
+    {sendSuccess && <div className="notif-success">{sendSuccess}</div>}
 
-              <button className="notif-send-btn" onClick={handleSend} disabled={sending}>
-                {sending ? "Sending…" : "Send Notification"}
-              </button>
-            </div>
-          )}
+    <button className="notif-send-btn" onClick={handleSend} disabled={sending}>
+      {sending ? "Sending…" : "Send Notification"}
+    </button>
+
+    <hr style={{ margin: "16px 0", borderColor: "#eee" }} />
+
+    <p className="notif-compose-hint" style={{ fontWeight: 600 }}>
+      📢 Broadcast to All Users
+    </p>
+
+    <div className="notif-field">
+      <label className="notif-label">Broadcast Message <span className="req">*</span></label>
+      <textarea
+        className={`notif-textarea${broadcastErr ? " notif-input-err" : ""}`}
+        placeholder="Type announcement or offer for all users…"
+        rows={4}
+        value={broadcastMsg}
+        onChange={(e) => {
+          setBroadcastMsg(e.target.value);
+          if (broadcastErr) setBroadcastErr("");
+          if (broadcastSuccess) setBroadcastSuccess("");
+        }}
+      />
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        {broadcastErr ? <div className="notif-err">{broadcastErr}</div> : <span />}
+        <span style={{ fontSize: 10, color: "#aaa" }}>{broadcastMsg.length}/500</span>
+      </div>
+    </div>
+
+    {broadcastSuccess && <div className="notif-success">{broadcastSuccess}</div>}
+
+    <button className="notif-send-btn" onClick={handleBroadcast} disabled={broadcasting}
+      style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)" }}>
+      {broadcasting ? "Broadcasting…" : "📢 Broadcast to All"}
+    </button>
+  </div>
+)}
         </div>
       </div>
     </div>

@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { fetchProfile } from "../slice/profileSlice";
+import { fetchProfile } from "../slice/profileThunks";
 import ProfileSidebar from "../components/ProfileSidebar";
 import ProfileForm from "../components/ProfileForm";
 import LoadingState from "../../home/components/LoadingState";

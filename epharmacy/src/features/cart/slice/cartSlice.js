@@ -10,6 +10,7 @@ import {
   moveToCart,
   deleteSaved,
   placeOrder,
+  clearCartOnServer,
 } from "./cartThunks";
 
 const cartSlice = createSlice({
@@ -69,6 +70,14 @@ const cartSlice = createSlice({
         state.loading        = false;
         state.pendingOrderId = payload?.orderId ?? payload?.id ?? null;
       })
+      .addCase(clearCartOnServer.fulfilled, (state) => {
+  state.items   = [];
+  state.summary = { numberOfItems: 0, mrpTotal: 0, cartTotal: 0 };
+  state.count   = 0;
+})
+.addCase(clearCartOnServer.rejected, (state, { payload }) => {
+  state.error = payload;
+})
       .addCase(placeOrder.rejected,  (state, { payload }) => { state.loading = false; state.error = payload; });
   },
 });

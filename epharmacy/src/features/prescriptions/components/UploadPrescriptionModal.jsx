@@ -2,7 +2,8 @@
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { scanPrescription, clearOcrResult } from "../slices/prescriptionSlice";
+import { scanPrescription, } from "../slices/prescriptionThunks";
+import { clearOcrResult} from "../slices/prescriptionSlice";
 import DropZoneStep  from "./upload/DropZoneStep";
 import ScanningStep  from "./upload/ScanningStep";
 import ReviewStep    from "./upload/ReviewStep";

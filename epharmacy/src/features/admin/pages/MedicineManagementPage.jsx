@@ -1,4 +1,3 @@
-
 import AdminLayout    from "../layouts/AdminLayout";
 import StatisticsCard from "../components/StatisticsCard";
 import DataTable      from "../components/DataTable";
@@ -6,13 +5,13 @@ import DataRow        from "../components/DataRow";
 import ActionMenu     from "../components/ActionMenu";
 import Modal          from "../components/Modal";
 import Pagination     from "../components/Pagination";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchMedicineStats, createMedicine, editMedicine, changeMedicineAvailability,
   fetchBatches, createBatch, editBatch, removeBatch,
   fetchCategories, fetchAllMedicinesForAdmin,
-} from "../../medicines/slices/medicineSlice";
+} from "../../medicines/slices/medicineThunks";
 
 import TableToolbar      from "../components/TableToolbar";
 import AdminConfirmModal from "../components/AdminConfirmModal";
@@ -82,7 +81,6 @@ function todayISO() { return new Date().toISOString().split("T")[0]; }
 
 function validateMedForm(form, isEdit) {
   const e = {};
-
   if (!form.name.trim()) {
     e.name = "Medicine name is required.";
   } else if (form.name.trim().length < 2 || form.name.trim().length > 50) {
@@ -90,99 +88,67 @@ function validateMedForm(form, isEdit) {
   } else if (!/^[A-Za-z0-9 ]{2,50}$/.test(form.name.trim())) {
     e.name = "Name can only contain letters, numbers and spaces.";
   }
-
   if (!isEdit) {
     if (!form.brand.trim()) {
       e.brand = "Brand name is required.";
     } else if (!/^[A-Za-z ]{2,100}$/.test(form.brand.trim())) {
       e.brand = "Brand must be 2–100 letters only, no numbers.";
     }
-
     if (!form.composition.trim()) {
       e.composition = "Composition is required.";
     } else if (!/^[A-Za-z0-9+., ]{3,255}$/.test(form.composition.trim())) {
       e.composition = "Use letters, numbers and + . , only (min 3 chars).";
     }
-
     if (!form.strength.trim()) {
       e.strength = "Strength is required (e.g. 500mg, 5ml, 1g).";
     } else if (!/^\d+(mg|ml|g)$/i.test(form.strength.trim())) {
       e.strength = "Format must be like 500mg, 5ml or 1g.";
     }
   }
-
   if (form.price === "" || form.price === null || form.price === undefined) {
     e.price = "Price is required.";
   } else if (isNaN(form.price) || Number(form.price) <= 0) {
     e.price = "Price must be a number greater than 0.";
   }
-
   if (form.taxPercentage === "" || form.taxPercentage === null || form.taxPercentage === undefined) {
     e.taxPercentage = "Tax percentage is required.";
   } else {
     const t = Number(form.taxPercentage);
-    if (isNaN(t) || t < 0 || t > 99) {
-      e.taxPercentage = "Tax must be between 0 and 99.";
-    }
+    if (isNaN(t) || t < 0 || t > 99) e.taxPercentage = "Tax must be between 0 and 99.";
   }
-
   if (form.discountPercentage === "" || form.discountPercentage === null || form.discountPercentage === undefined) {
     e.discountPercentage = "Discount percentage is required.";
   } else {
     const d = Number(form.discountPercentage);
-    if (isNaN(d) || d < 0 || d > 99) {
-      e.discountPercentage = "Discount must be between 0 and 99.";
-    }
+    if (isNaN(d) || d < 0 || d > 99) e.discountPercentage = "Discount must be between 0 and 99.";
   }
-
-  if (!isEdit && !form.categoryId) {
-    e.categoryId = "Category is required.";
-  }
-
+  if (!isEdit && !form.categoryId) e.categoryId = "Category is required.";
   if (form.manufacturerId !== "") {
-    if (isNaN(form.manufacturerId) || Number(form.manufacturerId) <= 0) {
+    if (isNaN(form.manufacturerId) || Number(form.manufacturerId) <= 0)
       e.manufacturerId = "Enter a valid positive manufacturer ID.";
-    }
   } else if (!isEdit) {
     e.manufacturerId = "Manufacturer ID is required.";
   }
-
-  if (!isEdit && !form.scheduleType) {
-    e.scheduleType = "Schedule type is required.";
-  }
-
+  if (!isEdit && !form.scheduleType) e.scheduleType = "Schedule type is required.";
   if (!isEdit && !form.dosageForm) {
     e.dosageForm = "Dosage form is required.";
   } else if (form.dosageForm && !["tablet", "syrup", "injection"].includes(form.dosageForm.toLowerCase())) {
     e.dosageForm = "Select a valid dosage form (Tablet, Syrup or Injection).";
   }
-
   if (!isEdit) {
     if (!form.storageInstructions.trim()) {
       e.storageInstructions = "Storage instructions are required.";
     } else if (!/^[A-Za-z0-9 ,.-]{3,100}$/.test(form.storageInstructions.trim())) {
       e.storageInstructions = "Min 3 chars, letters/numbers/, . - only.";
     }
-
-    if (!form.description.trim()) {
-      e.description = "Description is required.";
-    }
-
-    if (!form.uses.trim()) {
-      e.uses = "Uses field is required.";
-    }
-
-    if (!form.sideEffects.trim()) {
-      e.sideEffects = "Side effects field is required.";
-    }
+    if (!form.description.trim()) e.description = "Description is required.";
+    if (!form.uses.trim()) e.uses = "Uses field is required.";
+    if (!form.sideEffects.trim()) e.sideEffects = "Side effects field is required.";
   } else if (form.description.trim() && form.description.trim().length < 5) {
     e.description = "Description must be at least 5 characters.";
   }
-
-  if (form.imageUrl && !/^https?:\/\/.+\..+/.test(form.imageUrl.trim())) {
+  if (form.imageUrl && !/^https?:\/\/.+\..+/.test(form.imageUrl.trim()))
     e.imageUrl = "Enter a valid URL starting with http:// or https://.";
-  }
-
   return e;
 }
 
@@ -196,25 +162,17 @@ function FieldWrap({ children, error, full }) {
   );
 }
 
-function fmtDate(d) {
-  if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-}
-
 export default function MedicineManagementPage() {
 
-  function showToast(msg, error = false) {
-    setToast({ show: true, msg, error });
-    setTimeout(() => {
-      setToast({ show: false, msg: "", error: false });
-    }, 3000);
-  }
+  const dispatch = useDispatch();
+  const { batchMap, categories, loading, adminLoading } = useSelector((s) => s.medicines);
 
   const [toast, setToast] = useState({ show: false, msg: "", error: false });
 
-  const dispatch = useDispatch();
-  const { adminMedicines, stats, batchMap, categories, loading, adminLoading, adminError } =
-    useSelector((s) => s.medicines);
+  const [localMedicines,     setLocalMedicines]     = useState([]);
+  const [localTotalPages,    setLocalTotalPages]     = useState(1);
+  const [localTotalElements, setLocalTotalElements]  = useState(0);
+  const [localStats,         setLocalStats]          = useState({ total: 0, available: 0, notAvailable: 0 });
 
   const [search,       setSearch]       = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -239,29 +197,43 @@ export default function MedicineManagementPage() {
 
   const [deleteBatchModal, setDeleteBatchModal] = useState({ open: false, medicineId: null, batchId: null, label: "" });
 
-  useEffect(() => {
-    const load = async () => {
-      const result = await dispatch(fetchAllMedicinesForAdmin());
-      dispatch(fetchMedicineStats());
-      dispatch(fetchCategories());
+  function showToast(msg, error = false) {
+    setToast({ show: true, msg, error });
+    setTimeout(() => setToast({ show: false, msg: "", error: false }), 3000);
+  }
+
+  function loadMedicines(pageNum = 1) {
+    dispatch(fetchAllMedicinesForAdmin({ page: pageNum - 1, size: PER_PAGE })).then((result) => {
       if (fetchAllMedicinesForAdmin.fulfilled.match(result)) {
-        const meds = result.payload;
-        if (Array.isArray(meds)) {
-          meds.forEach((m) => dispatch(fetchBatches(m.id)));
-          setBatchFetched(new Set(meds.map((m) => m.id)));
+        const data = result.payload;
+        const raw  = data?.content ?? (Array.isArray(data) ? data : []);
+        setLocalMedicines(raw);
+        setLocalTotalPages(data?.totalPages    ?? 1);
+        setLocalTotalElements(data?.totalElements ?? 0);
+        if (Array.isArray(raw)) {
+          raw.forEach((m) => dispatch(fetchBatches(m.id)));
+          setBatchFetched(new Set(raw.map((m) => m.id)));
         }
       }
-    };
-    load();
-  }, [dispatch]);
+    });
+    dispatch(fetchMedicineStats()).then((result) => {
+      if (fetchMedicineStats.fulfilled.match(result)) {
+        setLocalStats(result.payload);
+      }
+    });
+    dispatch(fetchCategories());
+  }
 
-  const filtered   = applyFilter(adminMedicines, search, statusFilter).slice().reverse();
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
-  const safePage   = Math.min(page, totalPages);
-  const start      = (safePage - 1) * PER_PAGE;
-  const pageSlice  = filtered.slice(start, start + PER_PAGE);
+  useEffect(() => {
+    loadMedicines(page);
+  }, [dispatch, page]);
 
-  useEffect(() => setPage(1), [search, statusFilter]);
+  useEffect(() => { setPage(1); }, [search, statusFilter]);
+
+  const filtered  = applyFilter(localMedicines, search, statusFilter);
+  const safePage  = page;
+  const start     = (safePage - 1) * PER_PAGE;
+  const pageSlice = filtered;
 
   function setField(key, value) {
     setMedForm((f) => ({ ...f, [key]: value }));
@@ -269,10 +241,7 @@ export default function MedicineManagementPage() {
   }
 
   function openAddMed() {
-    setEditingMedId(null);
-    setMedForm(EMPTY_MED_FORM);
-    setMedErrors({});
-    setMedModal(true);
+    setEditingMedId(null); setMedForm(EMPTY_MED_FORM); setMedErrors({}); setMedModal(true);
   }
 
   function openEditMed(med) {
@@ -289,10 +258,7 @@ export default function MedicineManagementPage() {
   }
 
   function closeMedModal() {
-    setMedModal(false);
-    setEditingMedId(null);
-    setMedForm(EMPTY_MED_FORM);
-    setMedErrors({});
+    setMedModal(false); setEditingMedId(null); setMedForm(EMPTY_MED_FORM); setMedErrors({});
   }
 
   async function handleSaveMed() {
@@ -310,16 +276,13 @@ export default function MedicineManagementPage() {
 
     if (editingMedId) {
       const updateDto = {
-        name:               dto.name,
-        price:              dto.price,
-        taxPercentage:      dto.taxPercentage,
-        discountPercentage: dto.discountPercentage,
+        name: dto.name, price: dto.price,
+        taxPercentage: dto.taxPercentage, discountPercentage: dto.discountPercentage,
       };
       const result = await dispatch(editMedicine({ id: editingMedId, dto: updateDto }));
       if (editMedicine.fulfilled.match(result)) {
         showToast("Medicine updated successfully");
-        dispatch(fetchMedicineStats());
-        dispatch(fetchAllMedicinesForAdmin());
+        loadMedicines(page);
       } else {
         showToast(result.payload || "Update failed", true);
       }
@@ -327,10 +290,9 @@ export default function MedicineManagementPage() {
       const result = await dispatch(createMedicine(dto));
       if (createMedicine.fulfilled.match(result)) {
         showToast("Medicine added successfully");
-        dispatch(fetchMedicineStats());
         const newMed = result.payload;
         if (newMed?.id) dispatch(fetchBatches(newMed.id));
-        dispatch(fetchAllMedicinesForAdmin());
+        loadMedicines(page);
       } else {
         showToast(result.payload || "Add failed", true);
       }
@@ -343,8 +305,7 @@ export default function MedicineManagementPage() {
     if (changeMedicineAvailability.fulfilled.match(result)) {
       const label = availModal.action === "available" ? "available" : "unavailable";
       showToast(`"${availModal.name}" marked as ${label}`);
-      dispatch(fetchMedicineStats());
-      dispatch(fetchAllMedicinesForAdmin());
+      loadMedicines(page);
     } else {
       showToast("Status update failed", true);
     }
@@ -365,29 +326,20 @@ export default function MedicineManagementPage() {
     setExpandedRows(next);
   }
 
-  function openAddBatch(med)  {
-    setBatchMedId(med.id);
-    setBatchMedName(med.name);
-    setEditingBatchId(null);
-    setBatchForm(EMPTY_BATCH_FORM);
-    setBatchErrors({});
-    setBatchModal(true);
+  function openAddBatch(med) {
+    setBatchMedId(med.id); setBatchMedName(med.name);
+    setEditingBatchId(null); setBatchForm(EMPTY_BATCH_FORM); setBatchErrors({}); setBatchModal(true);
   }
 
   function openEditBatch(med, batch) {
-    setBatchMedId(med.id);
-    setBatchMedName(med.name);
+    setBatchMedId(med.id); setBatchMedName(med.name);
     setEditingBatchId(batch.batchId);
     setBatchForm({ batchNumber: batch.batchNumber, expiryDate: batch.expiryDate, quantity: batch.quantity });
-    setBatchErrors({});
-    setBatchModal(true);
+    setBatchErrors({}); setBatchModal(true);
   }
 
   function closeBatchModal() {
-    setBatchModal(false);
-    setEditingBatchId(null);
-    setBatchForm(EMPTY_BATCH_FORM);
-    setBatchErrors({});
+    setBatchModal(false); setEditingBatchId(null); setBatchForm(EMPTY_BATCH_FORM); setBatchErrors({});
   }
 
   function setBatchField(key, value) {
@@ -465,9 +417,7 @@ export default function MedicineManagementPage() {
               {med.prescriptionRequired ? "Rx" : "OTC"}
             </span>
           </td>
-          <td>
-            <StatusBadge status={med.status} preset="availability" />
-          </td>
+          <td><StatusBadge status={med.status} preset="availability" /></td>
           <td>
             <button onClick={() => toggleExpand(med)} style={{ display:"inline-flex", alignItems:"center", gap:5, background:"none", border:"none", cursor:"pointer" }}>
               <span className="batch-count-pill">{batchLoaded ? medBatches.length : "…"}</span>
@@ -489,8 +439,7 @@ export default function MedicineManagementPage() {
                       Total Stock: <strong>{medBatches.reduce((s, b) => s + (b.quantity || 0), 0)}</strong>
                     </span>
                   </div>
-                  <button onClick={() => openAddBatch(med)}
-                    style={{ backgroundColor:"#52a468", color:"#fff", border:"none", padding:"6px 16px", borderRadius:"6px", fontWeight:"600", cursor:"pointer", fontSize:12 }}>
+                  <button onClick={() => openAddBatch(med)} style={{ backgroundColor:"#52a468", color:"#fff", border:"none", padding:"6px 16px", borderRadius:"6px", fontWeight:"600", cursor:"pointer", fontSize:12 }}>
                     + Add Batch
                   </button>
                 </div>
@@ -510,10 +459,10 @@ export default function MedicineManagementPage() {
                         <tr><td colSpan={5} style={{ textAlign:"center", padding:20, color:"#888", fontStyle:"italic", fontSize:12 }}>No batches added yet.</td></tr>
                       ) : (
                         medBatches.map((b) => {
-                          const expSt  = expiryStatus(b.expiryDate);
+                          const expSt   = expiryStatus(b.expiryDate);
                           const expDate = new Date(b.expiryDate).toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric" });
-                          const stkCls = batchStockClass(b.quantity);
-                          const stkLbl = batchStockLabel(b.quantity);
+                          const stkCls  = batchStockClass(b.quantity);
+                          const stkLbl  = batchStockLabel(b.quantity);
                           return (
                             <tr key={b.batchId} style={{ borderBottom:"1px solid #edf7ee" }}>
                               <td style={{ padding:"9px 14px" }}>
@@ -568,27 +517,16 @@ export default function MedicineManagementPage() {
             <p style={{ fontSize:12, color:"var(--text-muted)", marginTop:3 }}>Click ▾ on any row to view &amp; manage its batches</p>
           </div>
           <div style={{ display: "flex", justifyContent: "flex-end", width: "100%" }}>
-  <button
-    onClick={openAddMed}
-    style={{
-      backgroundColor: "#52a468",
-      color: "#fff",
-      border: "none",
-      padding: "8px 16px",
-      borderRadius: "6px",
-      fontWeight: "600",
-      cursor: "pointer"
-    }}
-  >
-    + Add Medicine
-  </button>
-</div>
+            <button onClick={openAddMed} style={{ backgroundColor: "#52a468", color: "#fff", border: "none", padding: "8px 16px", borderRadius: "6px", fontWeight: "600", cursor: "pointer" }}>
+              + Add Medicine
+            </button>
+          </div>
         </div>
 
         <section className="stats-grid" style={{ gridTemplateColumns:"repeat(3, 1fr)" }}>
-          <StatisticsCard icon="💊" value={stats?.total        ?? adminMedicines.length}                                                            label="Total Medicines" color="#52a468" />
-          <StatisticsCard icon="✓"  value={stats?.available    ?? adminMedicines.filter((m) => m.status?.toLowerCase() === "available").length}    label="Available"       color="#2980b9" />
-          <StatisticsCard icon="✕"  value={stats?.notAvailable ?? adminMedicines.filter((m) => m.status?.toLowerCase() !== "available").length}    label="Unavailable"     color="#e74c3c" />
+          <StatisticsCard icon="💊" value={localStats?.total        ?? 0} label="Total Medicines" color="#52a468" />
+          <StatisticsCard icon="✓"  value={localStats?.available    ?? 0} label="Available"       color="#2980b9" />
+          <StatisticsCard icon="✕"  value={localStats?.notAvailable ?? 0} label="Unavailable"     color="#e74c3c" />
         </section>
 
         <div className="table-card">
@@ -599,9 +537,19 @@ export default function MedicineManagementPage() {
             placeholder="Search medicine…"
             filters={toolbarFilters}
           />
-
-          <DataTable columns={MED_COLUMNS} data={pageSlice} renderRow={renderRow} loading={loading} error={adminError ? { message: adminError } : null} emptyMessage="No medicines found." />
-          <Pagination currentPage={safePage} totalPages={totalPages} totalItems={filtered.length} itemsPerPage={PER_PAGE} onPageChange={setPage} itemLabel="medicines" />
+          <DataTable
+            columns={MED_COLUMNS} data={pageSlice} renderRow={renderRow}
+            loading={loading} error={null}
+            emptyMessage="No medicines found."
+          />
+          <Pagination
+            currentPage={safePage}
+            totalPages={localTotalPages}
+            totalItems={localTotalElements}
+            itemsPerPage={PER_PAGE}
+            onPageChange={(p) => setPage(p)}
+            itemLabel="medicines"
+          />
         </div>
       </main>
 

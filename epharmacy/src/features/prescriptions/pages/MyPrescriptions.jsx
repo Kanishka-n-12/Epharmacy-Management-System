@@ -8,9 +8,13 @@ import {
   fetchPrescriptions,
   uploadPrescription,
   deletePrescription,
-  clearUploadMessages,
-  clearDeleteMessages,
-} from "../slices/prescriptionSlice";
+  
+} from "../slices/prescriptionThunks";
+
+import {clearUploadMessages,
+  clearDeleteMessages,} from "../slices/prescriptionSlice";
+
+import prescriptionService from "../services/prescriptionService";
 
 // ── Reused from existing features ──
 import ProfileSidebar from "../../users/components/ProfileSidebar";
@@ -135,11 +139,18 @@ export default function MyPrescriptions() {
       <DataRow key={prescriptionId}>
         <td>{index + 1}</td>
         <td>
-          <span className="rx-filename-cell" title={fileName}>
-            <span>{isImage ? "🖼️" : "📄"}</span>
-            {fileName}
-          </span>
-        </td>
+  <a
+    href={prescriptionService.getFileUrl(filePath)}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="rx-filename-cell"
+    title={fileName}
+    style={{ textDecoration: "none", color: "inherit" }}
+  >
+    <span>{isImage ? "🖼️" : "📄"}</span>
+    {fileName}
+  </a>
+</td>
         <td>{doctorName || "—"}</td>
         <td>{fmtDate(prescribedDate)}</td>
         <td>{fmtDate(uploadedDate)}</td>

@@ -1,7 +1,8 @@
 // features/profile/components/ProfileForm.jsx
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateProfile, clearProfileMessages } from "../slice/profileSlice";
+import { updateProfile,  } from "../slice/profileThunks";
+import {clearProfileMessages} from "../slice/profileSlice";
 import AddressModal from "./AddressModal";
 import ProfilePhotoUpload from "./ProfilePhotoUpload";
 import "../css/ProfileForm.css";

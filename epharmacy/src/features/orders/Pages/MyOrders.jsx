@@ -7,9 +7,10 @@ import { toast } from "react-toastify";
 import {
   fetchOrders,
   cancelOrder,
-  clearCancelMessages,
-} from "../slices/orderSlice";
+  
+} from "../slices/orderThunks";
 
+import {clearCancelMessages,} from "../slices/orderSlice";
 import ProfileSidebar from "../../users/components/ProfileSidebar";
 import LoadingState from "../../home/components/LoadingState";
 import ErrorState from "../../home/components/ErrorState";

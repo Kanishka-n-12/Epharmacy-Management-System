@@ -1,116 +1,47 @@
-// features/users/userSlice.js
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import userService from "../services/userService";
+import { createSlice } from "@reduxjs/toolkit";
+import {
+  fetchUsers,
+  createUser,
+  updateUser,
+  toggleUserStatus,
+  fetchUserStats,
+} from "./userThunks";
 
-/* ─────────────────────────────────────────
-   THUNKS
-───────────────────────────────────────── */
-export const fetchUsers = createAsyncThunk(
-  "users/fetchUsers",
-  async ({ page = 0, size = 10 } = {}, thunkAPI) => {
-    try {
-      return await userService.fetchAll(page, size);
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data ?? err.message);
-    }
-  }
-);
-
-export const createUser = createAsyncThunk(
-  "users/createUser",
-  async (userData, thunkAPI) => {
-    try {
-      return await userService.create(userData);
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data ?? err.message);
-    }
-  }
-);
-
-export const updateUser = createAsyncThunk(
-  "users/updateUser",
-  async ({ id, data }, thunkAPI) => {
-    try {
-      return await userService.update(id, data);
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data ?? err.message);
-    }
-  }
-);
-
-export const toggleUserStatus = createAsyncThunk(
-  "users/toggleUserStatus",
-  async ({ id, currentStatus }, thunkAPI) => {
-    try {
-      const newStatus = currentStatus === "active" ? "inactive" : "active";
-      await userService.setStatus(id, newStatus);
-      return { id, newStatus };
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data ?? err.message);
-    }
-  }
-);
-
-export const fetchUserStats = createAsyncThunk(
-  "users/fetchUserStats",
-  async (_, thunkAPI) => {
-    try {
-      return await userService.fetchStats();
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data ?? err.message);
-    }
-  }
-);
-
-/* ─────────────────────────────────────────
-   SLICE
-───────────────────────────────────────── */
 const userSlice = createSlice({
   name: "users",
   initialState: {
-  users: [],
-  totalPages: 1,
-  totalElements: 0,
-  loading: false,
-  error: null,
-},
+    users:         [],
+    totalPages:    1,
+    totalElements: 0,
+    stats:         null,
+    pageStats:     null,
+    loading:       false,
+    error:         null,
+  },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      /* ── fetchUsers ── */
-      .addCase(fetchUsers.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      .addCase(fetchUsers.pending,   (state) => { state.loading = true;  state.error = null; })
+      .addCase(fetchUsers.fulfilled, (state, { payload }) => {
+        state.loading        = false;
+        state.users          = payload.content       || [];
+        state.totalPages     = payload.totalPages;
+        state.totalElements  = payload.totalElements;
+        state.pageStats      = payload.pageStats;
       })
-      .addCase(fetchUsers.fulfilled, (state, action) => {
-  state.loading = false;
-  state.users = action.payload.content || [];
-  state.totalPages = action.payload.totalPages;
-  state.totalElements = action.payload.totalElements;
-  state.pageStats = action.payload.pageStats; // optional
-})
-      .addCase(fetchUsers.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      .addCase(fetchUserStats.fulfilled, (state, action) => {
-        state.stats = action.payload;
-      })
-      .addCase(createUser.fulfilled, (state, action) => {
-        state.users.push(action.payload);
+      .addCase(fetchUsers.rejected,  (state, { payload }) => { state.loading = false; state.error = payload; })
+
+      .addCase(fetchUserStats.fulfilled,  (state, { payload }) => { state.stats = payload; })
+
+      .addCase(createUser.fulfilled,      (state, { payload }) => { state.users.push(payload); })
+
+      .addCase(updateUser.fulfilled,      (state, { payload }) => {
+        const idx = state.users.findIndex((u) => u.userId === payload.userId);
+        if (idx !== -1) state.users[idx] = payload;
       })
 
-      /* ── updateUser ── */
-      .addCase(updateUser.fulfilled, (state, action) => {
-        const idx = state.users.findIndex(
-          (u) => u.userId === action.payload.userId
-        );
-        if (idx !== -1) state.users[idx] = action.payload;
-      })
-
-      /* ── toggleUserStatus ── */
-      .addCase(toggleUserStatus.fulfilled, (state, action) => {
-        const { id, newStatus } = action.payload;
+      .addCase(toggleUserStatus.fulfilled, (state, { payload }) => {
+        const { id, newStatus } = payload;
         const user = state.users.find((u) => u.userId === id);
         if (user) user.status = newStatus;
       });

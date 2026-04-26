@@ -12,6 +12,7 @@ export const addToCartApi      = (medicineId, quantity)     => {
     console.log(quantity);
     return api.post(base, { medicineId, quantity }).then(r => r.data);
 }
+export const clearCartApi = () => api.delete(`${base}/clear`).then(r => r.data);
 export const placeOrderApi = (addressId) =>
   api.post(`/orders?addressId=${addressId}`).then((r) => r.data);
 export const updateQtyApi      = (medicineId, quantity)     => api.put(`${base}/${medicineId}`, { quantity }).then(r => r.data);

@@ -9,19 +9,20 @@ export default function Pagination({
   onPageChange,
   itemLabel = "items",
 }) {
-  const safePage = Math.min(currentPage, totalPages);
+  const safeTotalPages = totalPages || 1;
+  const safePage = Math.min(Math.max(currentPage || 1, 1), safeTotalPages);
+  const safeTotalItems = totalItems || 0;
 
-  const startItem = totalItems ? (safePage - 1) * itemsPerPage + 1 : 0;
-  const endItem = Math.min(safePage * itemsPerPage, totalItems);
+  const startItem = safeTotalItems ? (safePage - 1) * itemsPerPage + 1 : 0;
+  const endItem   = Math.min(safePage * itemsPerPage, safeTotalItems);
 
   return (
     <div className="pagination-bar">
       <span className="pg-info">
-        Showing {startItem}–{endItem} of {totalItems} {itemLabel}
+        Showing {startItem}–{endItem} of {safeTotalItems} {itemLabel}
       </span>
 
       <div className="pg-btns">
-       
         <button
           className="pg-btn"
           disabled={safePage <= 1}
@@ -30,8 +31,7 @@ export default function Pagination({
           ‹
         </button>
 
-        
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+        {Array.from({ length: safeTotalPages }, (_, i) => i + 1).map((n) => (
           <button
             key={n}
             className={`pg-btn${n === safePage ? " active" : ""}`}
@@ -41,10 +41,9 @@ export default function Pagination({
           </button>
         ))}
 
-      
         <button
           className="pg-btn"
-          disabled={safePage >= totalPages}
+          disabled={safePage >= safeTotalPages}
           onClick={() => onPageChange(safePage + 1)}
         >
           ›

@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUsers, fetchUserStats, createUser, updateUser, toggleUserStatus } from "../../users/slice/userSlice"
+import { fetchUsers, fetchUserStats, createUser, updateUser, toggleUserStatus } from "../../users/slice/userThunks"
 
 import AdminLayout    from "../layouts/AdminLayout";
 import StatisticsCard from "../components/StatisticsCard";

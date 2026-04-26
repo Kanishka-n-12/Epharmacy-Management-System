@@ -1,8 +1,7 @@
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
-import { fetchCategories } from "../../../features/categories/slices/categorySlice";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+import { fetchCategories } from "../../../features/categories/slices/categoryThunks";
 import "../css/Navbar.css";
 
 export default function Navbar() {
@@ -13,20 +12,31 @@ export default function Navbar() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const navRef = useRef();
+  const wrapRef = useRef();
 
-
-
- 
   const currentCat = (searchParams.get("cat") || "").toLowerCase();
   const onMedicines = location.pathname === "/medicines";
+
   useEffect(() => {
-  const active = navRef.current?.querySelector(".nav-active");
-  active?.scrollIntoView({ inline: "center", behavior: "smooth" });
-}, [currentCat, onMedicines]);
+    const wrap = wrapRef.current;
+    const active = navRef.current?.querySelector(".nav-active");
+    if (!wrap || !active) return;
+
+    const wrapLeft = wrap.getBoundingClientRect().left;
+    const activeLeft = active.getBoundingClientRect().left;
+    const offset =
+      activeLeft - wrapLeft - wrap.clientWidth / 2 + active.offsetWidth / 2;
+
+    wrap.scrollBy({ left: offset, behavior: "smooth" });
+  }, [currentCat, onMedicines]);
 
   useEffect(() => {
     dispatch(fetchCategories());
   }, [dispatch]);
+
+  function scrollNav(dir) {
+    wrapRef.current?.scrollBy({ left: dir * 160, behavior: "smooth" });
+  }
 
   function handleClick(cat) {
     if (cat === "medicines") {
@@ -41,57 +51,50 @@ export default function Navbar() {
     return currentCat === cat;
   }
 
-   
   function toSlug(name) {
     return (name || "").toLowerCase().replace(/\s+/g, "-");
   }
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark custom-nav sticky-top shadow-sm">
-      <div className="container">
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNavComp"
-        >
-          <span className="navbar-toggler-icon" />
+    <nav className="navbar navbar-dark custom-nav sticky-top shadow-sm">
+      <div className="nav-scroll-wrapper">
+        <button className="nav-scroll-btn" onClick={() => scrollNav(-1)}>
+          &#8249;
         </button>
 
-        <div className="collapse navbar-collapse" id="navbarNavComp">
-          <ul ref={navRef} className="navbar-nav gap-3 text-uppercase">
-
-            
+        <div ref={wrapRef} className="navbar-nav-wrap">
+          <ul ref={navRef} className="navbar-nav text-uppercase">
             {categories?.map((cat) => {
-  const name = cat.name || "Unknown";
-  const slug = cat.slug || toSlug(name);
+              const name = cat.name || "Unknown";
+              const slug = cat.slug || toSlug(name);
+              return (
+                <li key={cat.id} className="nav-item">
+                  <span
+                    className={`nav-link${isActive(slug) ? " nav-active" : ""}`}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleClick(slug)}
+                  >
+                    {name}
+                  </span>
+                </li>
+              );
+            })}
 
-  return (
-    <li key={cat.id} className="nav-item">
-      <span
-        className={`nav-link${isActive(slug) ? " nav-active" : ""}`}
-        style={{ fontWeight: 700, cursor: "pointer" }}
-        onClick={() => handleClick(slug)}
-      >
-        {name}
-      </span>
-    </li>
-  );
-})}
-
-           
             <li className="nav-item">
               <span
                 className={`nav-link${onMedicines ? " nav-active" : ""}`}
-                style={{ fontWeight: 700, cursor: "pointer" }}
+                style={{ cursor: "pointer" }}
                 onClick={() => handleClick("medicines")}
               >
                 Medicines
               </span>
             </li>
-
           </ul>
         </div>
+
+        <button className="nav-scroll-btn" onClick={() => scrollNav(1)}>
+          &#8250;
+        </button>
       </div>
     </nav>
   );

@@ -1,200 +1,70 @@
-// features/prescriptions/slices/prescriptionSlice.js
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import prescriptionService from "../services/prescriptionService";
+import { createSlice } from "@reduxjs/toolkit";
+import {
+  fetchPrescriptions,
+  fetchPrescription,
+  scanPrescription,
+  uploadPrescription,
+  deletePrescription,
+} from "./prescriptionThunks";
 
-/* ─────────────────────────────────────────
-   THUNKS
-───────────────────────────────────────── */
-
-export const fetchPrescriptions = createAsyncThunk(
-  "userPrescriptions/fetchAll",
-  async (_, thunkAPI) => {
-    try {
-      return await prescriptionService.getPrescriptions();
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data ?? err.message);
-    }
-  }
-);
-
-export const fetchPrescription = createAsyncThunk(
-  "userPrescriptions/fetchOne",
-  async (id, thunkAPI) => {
-    try {
-      return await prescriptionService.getPrescription(id);
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data ?? err.message);
-    }
-  }
-);
-
-/**
- * Sends a file to the backend for OCR scanning.
- * On success, stores the OcrResultDTO in state.ocrResult so the
- * UploadPrescriptionModal can pre-fill the review form.
- */
-export const scanPrescription = createAsyncThunk(
-  "userPrescriptions/scan",
-  async (file, thunkAPI) => {
-    try {
-      return await prescriptionService.scanPrescription(file);
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data ?? err.message);
-    }
-  }
-);
-
-export const uploadPrescription = createAsyncThunk(
-  "userPrescriptions/upload",
-  async (dto, thunkAPI) => {
-    try {
-      return await prescriptionService.uploadPrescription(dto);
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data ?? err.message);
-    }
-  }
-);
-
-export const deletePrescription = createAsyncThunk(
-  "userPrescriptions/delete",
-  async (id, thunkAPI) => {
-    try {
-      await prescriptionService.deletePrescription(id);
-      return id;
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data ?? err.message);
-    }
-  }
-);
-
-/* ─────────────────────────────────────────
-   SLICE
-───────────────────────────────────────── */
 const prescriptionSlice = createSlice({
   name: "userPrescriptions",
   initialState: {
-    prescriptions: [],
+    prescriptions:        [],
     selectedPrescription: null,
-
-    loading: false,
-    detailLoading: false,
-    uploading: false,
-    deleting: false,
-
-    /** OCR scan state */
-    scanning: false,
-    ocrResult: null,   // OcrResultDTO from backend
-    scanError: null,
-
-    error: null,
-    uploadError: null,
-    uploadSuccess: null,
-    deleteError: null,
-    deleteSuccess: null,
+    loading:              false,
+    detailLoading:        false,
+    uploading:            false,
+    deleting:             false,
+    scanning:             false,
+    ocrResult:            null,
+    scanError:            null,
+    error:                null,
+    uploadError:          null,
+    uploadSuccess:        null,
+    deleteError:          null,
+    deleteSuccess:        null,
   },
   reducers: {
-    clearSelectedPrescription(state) {
-      state.selectedPrescription = null;
-    },
-    clearUploadMessages(state) {
-      state.uploadError = null;
-      state.uploadSuccess = null;
-    },
-    clearDeleteMessages(state) {
-      state.deleteError = null;
-      state.deleteSuccess = null;
-    },
-    /** Reset OCR state when the modal is closed */
-    clearOcrResult(state) {
-      state.ocrResult = null;
-      state.scanError = null;
-      state.scanning = false;
-    },
+    clearSelectedPrescription(state) { state.selectedPrescription = null; },
+    clearUploadMessages(state)       { state.uploadError = null; state.uploadSuccess = null; },
+    clearDeleteMessages(state)       { state.deleteError = null; state.deleteSuccess = null; },
+    clearOcrResult(state)            { state.ocrResult = null; state.scanError = null; state.scanning = false; },
   },
   extraReducers: (builder) => {
     builder
-      /* ── fetchPrescriptions ── */
-      .addCase(fetchPrescriptions.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchPrescriptions.fulfilled, (state, action) => {
-        state.loading = false;
-        state.prescriptions = action.payload;
-      })
-      .addCase(fetchPrescriptions.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+      .addCase(fetchPrescriptions.pending,   (state) => { state.loading = true;  state.error = null; })
+      .addCase(fetchPrescriptions.fulfilled, (state, { payload }) => { state.loading = false; state.prescriptions = payload; })
+      .addCase(fetchPrescriptions.rejected,  (state, { payload }) => { state.loading = false; state.error = payload; })
+
+      .addCase(fetchPrescription.pending,   (state) => { state.detailLoading = true; })
+      .addCase(fetchPrescription.fulfilled, (state, { payload }) => { state.detailLoading = false; state.selectedPrescription = payload; })
+      .addCase(fetchPrescription.rejected,  (state) => { state.detailLoading = false; })
+
+      .addCase(scanPrescription.pending,   (state) => { state.scanning = true;  state.ocrResult = null; state.scanError = null; })
+      .addCase(scanPrescription.fulfilled, (state, { payload }) => { state.scanning = false; state.ocrResult = payload; })
+      .addCase(scanPrescription.rejected,  (state, { payload }) => {
+        state.scanning  = false;
+        state.scanError = typeof payload === "string" ? payload : payload?.message || "OCR scan failed.";
       })
 
-      /* ── fetchPrescription (single) ── */
-      .addCase(fetchPrescription.pending, (state) => {
-        state.detailLoading = true;
+      .addCase(uploadPrescription.pending,   (state) => { state.uploading = true;  state.uploadError = null; state.uploadSuccess = null; })
+      .addCase(uploadPrescription.fulfilled, (state, { payload }) => {
+        state.uploading      = false;
+        state.ocrResult      = null;
+        state.uploadSuccess  = "Prescription uploaded successfully!";
+        state.prescriptions.unshift(payload);
       })
-      .addCase(fetchPrescription.fulfilled, (state, action) => {
-        state.detailLoading = false;
-        state.selectedPrescription = action.payload;
-      })
-      .addCase(fetchPrescription.rejected, (state) => {
-        state.detailLoading = false;
-      })
+      .addCase(uploadPrescription.rejected,  (state, { payload }) => { state.uploading = false; state.uploadError = payload; })
 
-      /* ── scanPrescription ── */
-      .addCase(scanPrescription.pending, (state) => {
-        state.scanning = true;
-        state.ocrResult = null;
-        state.scanError = null;
+      .addCase(deletePrescription.pending,   (state) => { state.deleting = true;  state.deleteError = null; state.deleteSuccess = null; })
+      .addCase(deletePrescription.fulfilled, (state, { payload }) => {
+        state.deleting       = false;
+        state.deleteSuccess  = "Prescription deleted successfully.";
+        state.prescriptions  = state.prescriptions.filter((p) => p.prescriptionId !== payload);
+        if (state.selectedPrescription?.prescriptionId === payload) state.selectedPrescription = null;
       })
-      .addCase(scanPrescription.fulfilled, (state, action) => {
-        state.scanning = false;
-        state.ocrResult = action.payload;
-      })
-      .addCase(scanPrescription.rejected, (state, action) => {
-        state.scanning = false;
-        state.scanError =
-          typeof action.payload === "string"
-            ? action.payload
-            : action.payload?.message || "OCR scan failed.";
-      })
-
-      /* ── uploadPrescription ── */
-      .addCase(uploadPrescription.pending, (state) => {
-        state.uploading = true;
-        state.uploadError = null;
-        state.uploadSuccess = null;
-      })
-      .addCase(uploadPrescription.fulfilled, (state, action) => {
-        state.uploading = false;
-        state.prescriptions.unshift(action.payload);
-        state.uploadSuccess = "Prescription uploaded successfully!";
-        state.ocrResult = null; // clear after successful submit
-      })
-      .addCase(uploadPrescription.rejected, (state, action) => {
-        state.uploading = false;
-        state.uploadError = action.payload;
-      })
-
-      /* ── deletePrescription ── */
-      .addCase(deletePrescription.pending, (state) => {
-        state.deleting = true;
-        state.deleteError = null;
-        state.deleteSuccess = null;
-      })
-      .addCase(deletePrescription.fulfilled, (state, action) => {
-        state.deleting = false;
-        const id = action.payload;
-        state.prescriptions = state.prescriptions.filter(
-          (p) => p.prescriptionId !== id
-        );
-        if (state.selectedPrescription?.prescriptionId === id) {
-          state.selectedPrescription = null;
-        }
-        state.deleteSuccess = "Prescription deleted successfully.";
-      })
-      .addCase(deletePrescription.rejected, (state, action) => {
-        state.deleting = false;
-        state.deleteError = action.payload;
-      });
+      .addCase(deletePrescription.rejected,  (state, { payload }) => { state.deleting = false; state.deleteError = payload; });
   },
 });
 

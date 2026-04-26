@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate }         from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { fetchAllMedicines }   from "../slices/medicineSlice";
+import { fetchAllMedicines }   from "../slices/medicineThunks";
 import ProductGrid             from "../../../components/ui/ProductGrid";
 import HeroBanner              from "../../home/components/HeroBanner";
 

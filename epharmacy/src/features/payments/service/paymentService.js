@@ -2,11 +2,7 @@ import axios from "axios";
 
 import api from "../../../api";
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+
 
 export const paymentService = {
   getBillSummary: (orderId) =>
@@ -20,4 +16,15 @@ export const paymentService = {
 
   verifyRazorpayPayment: (dto) =>
     api.post("/payments/razorpay/verify", dto).then((r) => r.data),
+
+  
 };
+export async function getInvoice(orderId) {
+    const { data } = await api.get(`/payments/invoice/${orderId}`);
+    return data;
+}
+
+export async function recordFailedPayment(dto) {
+    const { data } = await api.post("/payments/razorpay/failure", dto);
+    return data;
+}

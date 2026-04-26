@@ -7,8 +7,10 @@ import {
   updateAddress,
   deleteAddress,
   selectAddress,
-  clearAddressMessages,
-} from "../slice/addressSlice";
+  
+} from "../slice/addressThunks";
+
+import {clearAddressMessages} from "../slice/addressSlice"
 
 import {  placeOrder } from "../../cart/slice/cartThunks"
 

@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchPrescriptions, fetchPrescriptionStats, updatePrescriptionStatus,
-} from "../../prescriptions/slices/prescriptionAdminSlice";
+} from "../../prescriptions/slices/prescriptionAdminThunks";
 
 import TableToolbar  from "../components/TableToolbar";
 import StatusBadge   from "../components/StatusBadge";

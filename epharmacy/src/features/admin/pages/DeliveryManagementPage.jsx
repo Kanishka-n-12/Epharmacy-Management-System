@@ -8,9 +8,8 @@ import Modal          from "../components/Modal";
 import Pagination     from "../components/Pagination";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchDeliveries, fetchDeliveryStats } from "../../deliveries/slice/deliverySlice";
+import { fetchDeliveries, fetchDeliveryStats } from "../../deliveries/slice/deliveryThunks";
 
-// ── Shared components ──────────────────────────────────────────────
 import TableToolbar      from "../components/TableToolbar";
 import AdminConfirmModal from "../components/AdminConfirmModal";
 import StatusBadge       from "../components/StatusBadge";
@@ -46,49 +45,41 @@ function applyFilter(deliveries, search, statusFilter, dateFilter) {
 
 export default function DeliveryManagementPage() {
 
+  const [toast, setToast] = useState({ show: false, msg: "", error: false });
+
   function showToast(msg, error = false) {
-  setToast({ show: true, msg, error });
+    setToast({ show: true, msg, error });
+    setTimeout(() => setToast({ show: false, msg: "", error: false }), 3000);
+  }
 
-  setTimeout(() => {
-    setToast({ show: false, msg: "", error: false });
-  }, 3000);
-}
-
-   const [toast, setToast] = useState({
-    show: false,
-    msg: "",
-    error: false,
-  });
-
-  
   const dispatch = useDispatch();
 
-  const rawDeliveries = useSelector((s) => s.deliveries?.deliveries);
-  const deliveries    = Array.isArray(rawDeliveries) ? rawDeliveries : [];
+  const rawDeliveries  = useSelector((s) => s.deliveries?.deliveries);
+  const deliveries     = Array.isArray(rawDeliveries) ? rawDeliveries : [];
+  const totalPages     = useSelector((s) => s.deliveries?.totalPages ?? 1);
+  const totalElements  = useSelector((s) => s.deliveries?.totalElements ?? 0);
   const { stats, loading, adminLoading, adminError } = useSelector((s) => s.deliveries);
 
   const [search,       setSearch]       = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFilter,   setDateFilter]   = useState("");
-  const [page,         setPage]         = useState(1);
+  const [page,         setPage]         = useState(0); // 0-based for server
 
   const [viewModal,   setViewModal]   = useState({ open: false, delivery: null });
   const [statusModal, setStatusModal] = useState({ open: false, delivery: null, newStatus: "" });
   const [cancelModal, setCancelModal] = useState({ open: false, delivery: null });
 
-
+  // Fetch when page changes
   useEffect(() => {
-    dispatch(fetchDeliveries());
+    dispatch(fetchDeliveries({ page, size: PER_PAGE }));
     dispatch(fetchDeliveryStats());
-  }, [dispatch]);
+  }, [dispatch, page]);
 
-  useEffect(() => { setPage(1); }, [search, statusFilter, dateFilter]);
+  // Reset to page 0 when filters change
+  useEffect(() => { setPage(0); }, [search, statusFilter, dateFilter]);
 
-  const filtered   = applyFilter(deliveries, search, statusFilter, dateFilter).slice().reverse();
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
-  const safePage   = Math.min(page, totalPages);
-  const start      = (safePage - 1) * PER_PAGE;
-  const pageSlice  = filtered.slice(start, start + PER_PAGE);
+  // Client-side filter on current page data only
+  const filtered = applyFilter(deliveries, search, statusFilter, dateFilter);
 
   async function saveStatus() {
     const { delivery, newStatus } = statusModal;
@@ -99,7 +90,8 @@ export default function DeliveryManagementPage() {
       return;
     }
     showToast(`Delivery #${delivery.deliveryId} updated to ${cap(newStatus)}`);
-    dispatch(fetchDeliveries()); dispatch(fetchDeliveryStats());
+    dispatch(fetchDeliveries({ page, size: PER_PAGE }));
+    dispatch(fetchDeliveryStats());
     setStatusModal({ open: false, delivery: null, newStatus: "" });
   }
 
@@ -107,7 +99,8 @@ export default function DeliveryManagementPage() {
     const { delivery } = cancelModal;
     if (!delivery) return;
     showToast(`Delivery #${delivery.deliveryId} cancelled — Order #${delivery.orderId} also cancelled`, true);
-    dispatch(fetchDeliveries()); dispatch(fetchDeliveryStats());
+    dispatch(fetchDeliveries({ page, size: PER_PAGE }));
+    dispatch(fetchDeliveryStats());
     setCancelModal({ open: false, delivery: null });
   }
 
@@ -137,12 +130,11 @@ export default function DeliveryManagementPage() {
     );
   }
 
- 
   const toolbarFilters = [
     {
       type: "select",
       value: statusFilter,
-      onChange: (v) => { setStatusFilter(v); setPage(1); },
+      onChange: (v) => { setStatusFilter(v); setPage(0); },
       options: [
         { value: "", label: "All Status" },
         ...STATUS_OPTIONS.map((s) => ({ value: s, label: cap(s) })),
@@ -151,7 +143,7 @@ export default function DeliveryManagementPage() {
     {
       type: "date",
       value: dateFilter,
-      onChange: (v) => { setDateFilter(v); setPage(1); },
+      onChange: (v) => { setDateFilter(v); setPage(0); },
       title: "Filter by estimated delivery date",
     },
   ];
@@ -164,10 +156,10 @@ export default function DeliveryManagementPage() {
         </div>
 
         <section className="stats-grid">
-          <StatisticsCard icon="🚛" value={stats?.total     ?? deliveries.length} label="Total Deliveries" color="#52a468" />
-          <StatisticsCard icon="📦" value={stats?.placed    ?? 0}                 label="Placed"           color="#3498db" />
-          <StatisticsCard icon="🚚" value={stats?.shipped   ?? 0}                 label="Shipped"          color="#9b59b6" />
-          <StatisticsCard icon="✅" value={stats?.delivered ?? 0}                 label="Delivered"        color="#27ae60" />
+          <StatisticsCard icon="🚛" value={stats?.total     ?? totalElements} label="Total Deliveries" color="#52a468" />
+          <StatisticsCard icon="📦" value={stats?.placed    ?? 0}             label="Placed"           color="#3498db" />
+          <StatisticsCard icon="🚚" value={stats?.shipped   ?? 0}             label="Shipped"          color="#9b59b6" />
+          <StatisticsCard icon="✅" value={stats?.delivered ?? 0}             label="Delivered"        color="#27ae60" />
           <StatisticsCard
             icon="❌"
             value={stats?.cancelled ?? deliveries.filter((d) => (d.orderStatus ?? "").toLowerCase() === "cancelled").length}
@@ -177,23 +169,42 @@ export default function DeliveryManagementPage() {
         </section>
 
         <div className="table-card">
-          {/* ── shared TableToolbar ── */}
           <TableToolbar
             title="All Deliveries"
             search={search}
-            onSearch={(v) => { setSearch(v); setPage(1); }}
+            onSearch={(v) => { setSearch(v); setPage(0); }}
             placeholder="Search tracking no, order, user…"
             filters={toolbarFilters}
           />
 
-          <DataTable columns={COLUMNS} data={pageSlice} renderRow={renderRow} loading={loading} error={adminError?{message:adminError}:null} emptyMessage="No deliveries found." />
-          <Pagination currentPage={safePage} totalPages={totalPages} totalItems={filtered.length} itemsPerPage={PER_PAGE} onPageChange={setPage} itemLabel="deliveries" />
+          <DataTable
+            columns={COLUMNS}
+            data={filtered}
+            renderRow={renderRow}
+            loading={loading}
+            error={adminError ? { message: adminError } : null}
+            emptyMessage="No deliveries found."
+          />
+
+          {/* Pagination — convert 0-based server page to 1-based UI */}
+          <Pagination
+            currentPage={page + 1}
+            totalPages={totalPages}
+            totalItems={totalElements}
+            itemsPerPage={PER_PAGE}
+            onPageChange={(p) => setPage(p - 1)}
+            itemLabel="deliveries"
+          />
         </div>
       </main>
 
       {/* VIEW MODAL */}
       {viewModal.open && viewModal.delivery && (
-        <Modal title={`Delivery #${viewModal.delivery.deliveryId} — Details`} onClose={() => setViewModal({ open: false, delivery: null })} size="md">
+        <Modal
+          title={`Delivery #${viewModal.delivery.deliveryId} — Details`}
+          onClose={() => setViewModal({ open: false, delivery: null })}
+          size="md"
+        >
           <div className="detail-grid">
             {[
               ["Delivery ID",        `#${viewModal.delivery.deliveryId}`],
@@ -205,7 +216,12 @@ export default function DeliveryManagementPage() {
             ].map(([label, val]) => (
               <div className="detail-item" key={label}>
                 <span className="detail-label">{label}</span>
-                <span className="detail-val" style={label==="Tracking Number"?{fontFamily:"monospace",fontSize:13}:{}}>{val}</span>
+                <span
+                  className="detail-val"
+                  style={label === "Tracking Number" ? { fontFamily: "monospace", fontSize: 13 } : {}}
+                >
+                  {val}
+                </span>
               </div>
             ))}
             <div className="detail-item" style={{ gridColumn: "1 / -1" }}>
@@ -213,34 +229,50 @@ export default function DeliveryManagementPage() {
               <StatusBadge status={(viewModal.delivery.orderStatus ?? "").toLowerCase()} preset="delivery" />
             </div>
           </div>
-          <div className="admin-modal-footer">
-          </div>
+          <div className="admin-modal-footer" />
         </Modal>
       )}
 
       {/* UPDATE STATUS MODAL */}
       {statusModal.open && statusModal.delivery && (
-        <Modal title="Update Delivery Status" onClose={() => setStatusModal({ open: false, delivery: null, newStatus: "" })} size="md">
+        <Modal
+          title="Update Delivery Status"
+          onClose={() => setStatusModal({ open: false, delivery: null, newStatus: "" })}
+          size="md"
+        >
           <p style={{ fontSize: 12.5, color: "var(--text-muted)", marginBottom: 14 }}>
             Delivery #{statusModal.delivery.deliveryId} · Order #{statusModal.delivery.orderId ?? "—"} · {statusModal.delivery.trackingNumber}
           </p>
           <div className="mfield">
-            <label className="mlabel">Delivery Status <span style={{ color: "var(--red)" }}>*</span></label>
-            <select className="mselect" value={statusModal.newStatus} onChange={(e) => setStatusModal((m) => ({ ...m, newStatus: e.target.value }))}>
+            <label className="mlabel">
+              Delivery Status <span style={{ color: "var(--red)" }}>*</span>
+            </label>
+            <select
+              className="mselect"
+              value={statusModal.newStatus}
+              onChange={(e) => setStatusModal((m) => ({ ...m, newStatus: e.target.value }))}
+            >
               {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{cap(s)}</option>)}
             </select>
           </div>
           {statusModal.newStatus === "cancelled" && (
-            <div style={{ background:"#fff8e1", border:"1.5px solid #ffe082", borderRadius:8, padding:"10px 14px", fontSize:12, fontWeight:600, color:"#b45309", marginTop:14 }}>
+            <div style={{
+              background: "#fff8e1", border: "1.5px solid #ffe082",
+              borderRadius: 8, padding: "10px 14px",
+              fontSize: 12, fontWeight: 600, color: "#b45309", marginTop: 14,
+            }}>
               Setting status to <strong>Cancelled</strong> will also cancel the linked Order.
             </div>
           )}
           <div className="admin-modal-footer">
-            <button className="btn-save" onClick={saveStatus} disabled={adminLoading}>{adminLoading ? "Saving…" : "Save"}</button>
+            <button className="btn-save" onClick={saveStatus} disabled={adminLoading}>
+              {adminLoading ? "Saving…" : "Save"}
+            </button>
           </div>
         </Modal>
       )}
 
+      {/* CANCEL CONFIRM MODAL */}
       {cancelModal.open && cancelModal.delivery && (
         <AdminConfirmModal
           title="Cancel Delivery"
@@ -253,7 +285,10 @@ export default function DeliveryManagementPage() {
               <p style={{ margin: "0 0 16px", color: "var(--text-mid)", fontSize: 14 }}>
                 Are you sure you want to cancel this delivery? The linked order will also be cancelled.
               </p>
-              <div style={{ background:"#fef3c7", border:"1px solid #d32b2b", borderRadius:8, padding:"12px 14px", fontSize:13 }}>
+              <div style={{
+                background: "#fef3c7", border: "1px solid #d32b2b",
+                borderRadius: 8, padding: "12px 14px", fontSize: 13,
+              }}>
                 <div style={{ marginBottom: 6 }}><strong>Delivery:</strong> #{cancelModal.delivery.deliveryId}</div>
                 <div style={{ marginBottom: 6 }}><strong>Order:</strong> #{cancelModal.delivery.orderId ?? "—"}</div>
                 <div><strong>Tracking:</strong> {cancelModal.delivery.trackingNumber ?? "—"}</div>
@@ -263,7 +298,12 @@ export default function DeliveryManagementPage() {
         />
       )}
 
-      <div className={`toast${toast.show ? " show" : ""}`} style={toast.error ? { background: "#d03434" } : {}}>{toast.msg}</div>
+      <div
+        className={`toast${toast.show ? " show" : ""}`}
+        style={toast.error ? { background: "#d03434" } : {}}
+      >
+        {toast.msg}
+      </div>
     </AdminLayout>
   );
 }

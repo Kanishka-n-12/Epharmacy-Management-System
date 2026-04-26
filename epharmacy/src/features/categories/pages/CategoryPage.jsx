@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCategories, fetchMedicinesByCategory } from "../slices/categorySlice";
+import { fetchCategories, fetchMedicinesByCategory } from "../slices/categoryThunks";
 import ProductGrid from "../../../components/ui/ProductGrid";
 import HeroBanner from "../../home/components/HeroBanner";
 import { useState } from "react"; 
@@ -52,12 +52,13 @@ export default function CategoryPage() {
  
   function toCardProps(medicine) {
     return {
-      id:       medicine.id,
-      name:     medicine.name,
-      desc:     medicine.description,
-      price:    medicine.finalPrice,
-      savings:  medicine.discount ?? 0,
-      imageSrc: medicine.imageUrl || "/assets/images/placeholder.webp",
+      productId: medicine.id,       
+    name:      medicine.name,
+    desc:      medicine.description,
+    price:     medicine.finalPrice,
+    savings:   medicine.discount ?? 0,
+    imageSrc:  medicine.imageUrl || "/assets/images/placeholder.webp",
+    onCardClick: () => navigate(`/medicines/${medicine.id}`),
     };
   }
 

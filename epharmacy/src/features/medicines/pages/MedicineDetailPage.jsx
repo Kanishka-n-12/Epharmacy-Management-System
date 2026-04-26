@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { fetchMedicineById } from "../slices/medicineSlice";
+import { fetchMedicineById } from "../slices/medicineThunks";
 import { addToCart, updateQty, removeItem } from "../../cart/slice/cartThunks";
 import Toast from "../../admin/components/Toast";
 

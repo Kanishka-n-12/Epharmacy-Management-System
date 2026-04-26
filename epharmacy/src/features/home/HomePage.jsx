@@ -10,7 +10,7 @@ import ErrorState from "./components/ErrorState";
 import NoResults from "./components/NoResults";
 import ToastMessage from "../../components/ui/ToastMessage"
 
-import { fetchNewLaunches } from "../medicines/slices/medicineSlice";
+import { fetchNewLaunches } from "../medicines/slices/medicineThunks";
 
 export default function HomePage() {
   const dispatch = useDispatch();
@@ -38,17 +38,17 @@ export default function HomePage() {
 
   function toCardProps(medicine) {
     return {
-      productId: medicine.id,
-      name: medicine.name,
-      desc: medicine.description,
-      price: medicine.finalPrice,
-      savings: medicine.discount ?? 0,
-      imageSrc: medicine.imageUrl ,
-      onCardClick: () => navigate(`/medicines/${medicine.id}`),
-    };
+    productId: medicine.id,
+    name: medicine.name,
+    desc: medicine.description,
+    price: medicine.finalPrice,
+    savings: medicine.discount ?? 0,
+    imageSrc: medicine.imageUrl,
+    onCardClick: () => navigate(`/medicines/${medicine.id}`),
+  };
   }
 
-  return (
+  return (  
     <>
       <HeroBanner onSearch={setQuery} />
 

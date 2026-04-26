@@ -1,46 +1,76 @@
-
 .custom-nav {
-    background-color: var(--primary-green) !important;
-}
-
-.custom-nav .navbar-toggler {
-    border-color: rgba(255, 255, 255, 0.5);
-}
-
-.custom-nav .navbar-toggler-icon {
-    filter: invert(1);
+  background-color: var(--primary-green) !important;
+  padding: 0 8px;
 }
 
 .custom-nav .nav-link {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: white !important;
-    letter-spacing: 0.5px;
-    padding-top: 0.6rem;
-    padding-bottom: 0.6rem;
-    border-bottom: 2px solid transparent;
-    transition: color 0.2s, border-color 0.2s;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white !important;
+  letter-spacing: 0.5px;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
 }
 
 .custom-nav .nav-link:hover {
-    color: #d4f0da !important;
+  color: #d4f0da !important;
 }
 
 .custom-nav .nav-link.nav-active {
-    color: #fff176 !important;
-    font-weight: 700;
-    border-bottom: 2px solid #fff176;
+  color: #fff176 !important;
+  font-weight: 700;
+  border-bottom: 2px solid #fff176;
 }
 
+.nav-scroll-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
+.navbar-nav-wrap {
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-nav-wrap::-webkit-scrollbar {
+  display: none;
+}
 
 .custom-nav .navbar-nav {
-    flex-wrap: nowrap !important;
-    overflow-x: auto;
-    white-space: nowrap;
-    scrollbar-width: none; 
-    scroll-behavior: smooth;
+  display: flex;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  width: max-content;
+  margin: 0;
+  padding: 0;
 }
 
-.custom-nav .navbar-nav::-webkit-scrollbar {
-    display: none; 
+.nav-scroll-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 1;
+  transition: background 0.2s;
+}
+
+.nav-scroll-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
 }

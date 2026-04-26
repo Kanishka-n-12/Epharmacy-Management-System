@@ -1,5 +1,6 @@
-// features/prescriptions/components/PrescriptionDetailModal.jsx
+import { useEffect, useState } from "react";
 import PrescriptionStatusBadge from "./PrescriptionStatusBadge";
+import api from "../../../api";
 
 export default function PrescriptionDetailModal({ prescription, onClose }) {
   if (!prescription) return null;
@@ -15,23 +16,42 @@ export default function PrescriptionDetailModal({ prescription, onClose }) {
     medicines = [],
   } = prescription;
 
+  const [fileObjectUrl, setFileObjectUrl] = useState(null);
+  const [fileLoading,   setFileLoading]   = useState(false);
+  const [fileError,     setFileError]     = useState(false);
+
+  const isImage = /\.(jpg|jpeg|png|webp)$/i.test(filePath || "");
+  const isPdf   = /\.pdf$/i.test(filePath || "");
+
+  useEffect(() => {
+    if (!filePath) return;
+    setFileLoading(true);
+    setFileError(false);
+    api
+      .get(`/prescriptions/${prescriptionId}/file`, { responseType: "blob" })
+      .then((res) => {
+        const url = URL.createObjectURL(res.data);
+        setFileObjectUrl(url);
+      })
+      .catch(() => setFileError(true))
+      .finally(() => setFileLoading(false));
+
+    return () => {
+      if (fileObjectUrl) URL.revokeObjectURL(fileObjectUrl);
+    };
+  }, [prescriptionId]);
+
   const formattedUpload = uploadedDate
     ? new Date(uploadedDate).toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
+        day: "2-digit", month: "long", year: "numeric",
       })
     : "—";
 
   const formattedPrescribed = prescribedDate
     ? new Date(prescribedDate).toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
+        day: "2-digit", month: "long", year: "numeric",
       })
     : "—";
-
-  const isImage = /\.(jpg|jpeg|png|webp)$/i.test(filePath || "");
 
   return (
     <div className="rx-overlay" onClick={onClose}>
@@ -75,26 +95,58 @@ export default function PrescriptionDetailModal({ prescription, onClose }) {
           <p className="rx-modal-section-title" style={{ marginTop: 18 }}>
             Prescription File
           </p>
-          {isImage && filePath ? (
+
+          {!filePath ? (
+            <div className="rx-pdf-preview">
+              <span style={{ fontSize: 40 }}>📎</span>
+              <span className="rx-pdf-name">No file attached</span>
+            </div>
+
+          ) : fileLoading ? (
+            <div className="rx-pdf-preview">
+              <span style={{ fontSize: 32 }}>⏳</span>
+              <span className="rx-pdf-name">Loading file…</span>
+            </div>
+
+          ) : fileError ? (
+            <div className="rx-pdf-preview">
+              <span style={{ fontSize: 32 }}>⚠️</span>
+              <span className="rx-pdf-name">Could not load file.</span>
+            </div>
+
+          ) : isImage ? (
             <div className="rx-preview-wrap">
               <img
-                src={filePath}
+                src={fileObjectUrl}
                 alt="Prescription"
                 className="rx-preview-img"
               />
-              <a href={filePath} target="_blank" rel="noreferrer" className="rx-download-link">
-                Open in new tab ↗
-              </a>
             </div>
+
+          ) : isPdf ? (
+            <div className="rx-pdf-preview">
+              <iframe
+                src={fileObjectUrl}
+                title="Prescription PDF"
+                style={{
+                  width: "100%", height: 420,
+                  border: "1px solid #e0e0e0",
+                  borderRadius: 10,
+                }}
+              />
+            </div>
+
           ) : (
             <div className="rx-pdf-preview">
               <span style={{ fontSize: 40 }}>📄</span>
-              <span className="rx-pdf-name">
-                {filePath ? filePath.split("/").pop() : "No file attached"}
-              </span>
-              {filePath && (
-                <a href={filePath} target="_blank" rel="noreferrer" className="rx-download-link">
-                  Open / Download ↗
+              <span className="rx-pdf-name">{filePath.split("/").pop()}</span>
+              {fileObjectUrl && (
+                <a
+                  href={fileObjectUrl}
+                  download={filePath.split("/").pop()}
+                  className="rx-download-link"
+                >
+                  Download ↓
                 </a>
               )}
             </div>
@@ -130,6 +182,7 @@ export default function PrescriptionDetailModal({ prescription, onClose }) {
               </div>
             </>
           )}
+
         </div>
       </div>
     </div>

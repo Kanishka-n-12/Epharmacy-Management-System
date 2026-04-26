@@ -1,7 +1,7 @@
 // features/profile/components/ProfilePhotoUpload.jsx
 import { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateProfilePhoto } from "../slice/profileSlice";
+import { updateProfilePhoto } from "../slice/profileThunks";
 import "../css/ProfilePhotoUpload.css";
 
 const DEFAULT_AVATAR =

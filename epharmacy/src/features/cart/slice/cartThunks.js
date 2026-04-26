@@ -10,6 +10,7 @@ import {
   moveToCartApi,
   deleteSavedApi,
   placeOrderApi,
+  clearCartApi,
 } from "../services/cartService";
 
 export const fetchCart = createAsyncThunk(
@@ -143,6 +144,17 @@ export const placeOrder = createAsyncThunk(
   async ({ addressId }, { rejectWithValue }) => {
     try {
       return await placeOrderApi(addressId);
+    } catch (e) {
+      return rejectWithValue(e.response?.data?.message || e.message);
+    }
+  }
+);
+
+export const clearCartOnServer = createAsyncThunk(
+  "cart/clearCartOnServer",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await clearCartApi();
     } catch (e) {
       return rejectWithValue(e.response?.data?.message || e.message);
     }

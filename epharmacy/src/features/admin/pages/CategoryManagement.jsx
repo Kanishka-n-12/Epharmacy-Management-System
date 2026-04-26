@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchCategories, fetchCategoryStats, addCategory,
   updateCategory, updateCategoryStatus,
-} from "../../categories/slices/categoryAdminSlice";
+} from "../../categories/slices/categoryAdminThunks";
 
 import TableToolbar      from "../components/TableToolbar";
 import AdminConfirmModal from "../components/AdminConfirmModal";
@@ -27,19 +27,14 @@ const EMPTY_FORM = { name: "", status: "" };
 
 export default function CategoryManagement() {
 
-  function showToast(msg, error = false) {
-    setToast({ show: true, msg, error });
-    setTimeout(() => {
-      setToast({ show: false, msg: "", error: false });
-    }, 3000);
-  }
-
-  const [toast, setToast] = useState({ show: false, msg: "", error: false });
-
   const dispatch = useDispatch();
-  const { categories, stats, loading, adminLoading, adminError, totalPages, totalElements } = useSelector(
-    (s) => s.categories
-  );
+  const { loading, adminLoading } = useSelector((s) => s.categories);
+
+  const [toast,           setToast]           = useState({ show: false, msg: "", error: false });
+  const [localCategories, setLocalCategories] = useState([]);
+  const [localTotalPages, setLocalTotalPages] = useState(1);
+  const [localTotal,      setLocalTotal]      = useState(0);
+  const [localStats,      setLocalStats]      = useState({ total: 0, activeCount: 0, inactiveCount: 0 });
 
   const [search,       setSearch]       = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -52,12 +47,34 @@ export default function CategoryManagement() {
 
   const [deactivateModal, setDeactivateModal] = useState({ open: false, id: null, name: "" });
 
+  function showToast(msg, error = false) {
+    setToast({ show: true, msg, error });
+    setTimeout(() => setToast({ show: false, msg: "", error: false }), 3000);
+  }
+
+  function refreshData() {
+    dispatch(fetchCategories({ page: page - 1, size: PER_PAGE })).then((result) => {
+      if (fetchCategories.fulfilled.match(result)) {
+        const data = result.payload;
+        const raw  = data?.content ?? (Array.isArray(data) ? data : []);
+        setLocalCategories([...raw].reverse());
+        setLocalTotalPages(data?.totalPages    ?? 1);
+        setLocalTotal(     data?.totalElements ?? 0);
+      }
+    });
+
+    dispatch(fetchCategoryStats()).then((result) => {
+      if (fetchCategoryStats.fulfilled.match(result)) {
+        setLocalStats(result.payload);
+      }
+    });
+  }
+
   useEffect(() => {
-    dispatch(fetchCategories({ page: page - 1, size: PER_PAGE }));
-    dispatch(fetchCategoryStats());
+    refreshData();
   }, [dispatch, page]);
 
-  const slice = [...categories].reverse();
+  const slice = localCategories;
 
   function openAddModal() {
     setEditingId(null); setForm(EMPTY_FORM); setFormErrors({}); setModalOpen(true);
@@ -88,8 +105,7 @@ export default function CategoryManagement() {
       const result = await dispatch(updateCategory({ id: editingId, payload: { name: form.name.trim(), status: form.status } }));
       if (updateCategory.fulfilled.match(result)) {
         showToast("Category updated successfully");
-        dispatch(fetchCategoryStats());
-        dispatch(fetchCategories({ page: page - 1, size: PER_PAGE }));
+        refreshData();
       } else {
         showToast(result.payload || "Update failed", true);
       }
@@ -97,8 +113,7 @@ export default function CategoryManagement() {
       const result = await dispatch(addCategory({ categoryName: form.name.trim() }));
       if (addCategory.fulfilled.match(result)) {
         showToast("Category added successfully");
-        dispatch(fetchCategoryStats());
-        dispatch(fetchCategories({ page: page - 1, size: PER_PAGE }));
+        refreshData();
       } else {
         showToast(result.payload || "Add failed", true);
       }
@@ -112,8 +127,7 @@ export default function CategoryManagement() {
         updateCategoryStatus({ id: deactivateModal.id, status: "inactive" })
       ).unwrap();
       showToast(`"${deactivateModal.name}" has been deactivated`);
-      dispatch(fetchCategoryStats());
-      dispatch(fetchCategories({ page: page - 1, size: PER_PAGE }));
+      refreshData();
       setDeactivateModal({ open: false, id: null, name: "" });
     } catch (err) {
       showToast(err || "Failed to deactivate category", true);
@@ -126,8 +140,7 @@ export default function CategoryManagement() {
         updateCategoryStatus({ id: cat.id, status: "active" })
       ).unwrap();
       showToast(`"${cat.name}" has been activated`);
-      dispatch(fetchCategoryStats());
-      dispatch(fetchCategories({ page: page - 1, size: PER_PAGE }));
+      refreshData();
     } catch (err) {
       showToast(err || "Failed to activate category", true);
     }
@@ -147,9 +160,7 @@ export default function CategoryManagement() {
       <DataRow key={cat.id}>
         <td className="td-num">{idx}</td>
         <td className="td-name">{cat.name}</td>
-        <td>
-          <StatusBadge status={cat.status} preset="user" />
-        </td>
+        <td><StatusBadge status={cat.status} preset="user" /></td>
         <td><ActionMenu actions={actions} /></td>
       </DataRow>
     );
@@ -174,27 +185,19 @@ export default function CategoryManagement() {
         <div className="page-heading">
           <h1 className="page-title">Category Management</h1>
           <div style={{ display: "flex", justifyContent: "flex-end", width: "100%" }}>
-            <button
-              onClick={openAddModal}
-              style={{
-                backgroundColor: "#52a468",
-                color: "#fff",
-                border: "none",
-                padding: "8px 16px",
-                borderRadius: "6px",
-                fontWeight: "600",
-                cursor: "pointer",
-              }}
-            >
+            <button onClick={openAddModal} style={{
+              backgroundColor: "#52a468", color: "#fff", border: "none",
+              padding: "8px 16px", borderRadius: "6px", fontWeight: "600", cursor: "pointer",
+            }}>
               + Add Category
             </button>
           </div>
         </div>
 
         <section className="stats-grid">
-          <StatisticsCard icon="📄" value={stats?.total    ?? 0} label="Total Categories" color="#52a468" />
-          <StatisticsCard icon="✓"  value={stats?.active   ?? 0} label="Active"           color="#2980b9" />
-          <StatisticsCard icon="⊘"  value={stats?.inactive ?? 0} label="Inactive"         color="#e74c3c" />
+          <StatisticsCard icon="📄" value={localStats.total         ?? 0} label="Total Categories" color="#52a468" />
+          <StatisticsCard icon="✓"  value={localStats.activeCount   ?? 0} label="Active"           color="#2980b9" />
+          <StatisticsCard icon="⊘"  value={localStats.inactiveCount ?? 0} label="Inactive"         color="#e74c3c" />
         </section>
 
         <div className="table-card">
@@ -208,14 +211,14 @@ export default function CategoryManagement() {
 
           <DataTable
             columns={COLUMNS} data={slice} renderRow={renderRow}
-            loading={loading} error={adminError ? { message: adminError } : null}
+            loading={loading} error={null}
             emptyMessage="No categories found."
           />
 
           <Pagination
             currentPage={page}
-            totalPages={totalPages}
-            totalItems={totalElements}
+            totalPages={localTotalPages}
+            totalItems={localTotal}
             itemsPerPage={PER_PAGE}
             onPageChange={setPage}
             itemLabel="categories"
@@ -267,8 +270,7 @@ export default function CategoryManagement() {
           onClose={() => setDeactivateModal({ open: false, id: null, name: "" })}
           onConfirm={confirmDeactivate}
           message={
-            <>
-              Are you sure you want to deactivate{" "}
+            <>Are you sure you want to deactivate{" "}
               <strong style={{ color: "#c62828" }}>{deactivateModal.name}</strong>?
             </>
           }

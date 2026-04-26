@@ -51,7 +51,8 @@ export const forgotPassword = createAsyncThunk(
   "auth/forgotPassword",
   async (phone, { rejectWithValue }) => {
     try {
-      return await forgotPasswordApi(phone);
+      const data = await forgotPasswordApi(phone);
+      return data?.message || "OTP sent successfully.";
     } catch (err) {
       return rejectWithValue(extractError(err, "Failed to send OTP"));
     }
@@ -62,7 +63,8 @@ export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
   async ({ phone, otp, newPassword }, { rejectWithValue }) => {
     try {
-      return await resetPasswordApi({ phone, otp, newPassword });
+      const data = await resetPasswordApi({ phone, otp, newPassword });
+      return data?.message || "Password reset successfully.";
     } catch (err) {
       return rejectWithValue(extractError(err, "Password reset failed"));
     }

@@ -6,15 +6,14 @@ import DataRow        from "../components/DataRow";
 import ActionMenu     from "../components/ActionMenu";
 import Modal          from "../components/Modal";
 import Pagination     from "../components/Pagination";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllOrders, fetchOrderStats, updateOrderStatus,
   fetchAllPayments, fetchPaymentStats, updatePaymentStatus,
-} from "../../orders/slices/ordersPaymentSlice";
-
-import TableToolbar  from "../components/TableToolbar";
-import StatusBadge   from "../components/StatusBadge";
+} from "../../orders/slices/ordersPaymentsThunks";
+import TableToolbar from "../components/TableToolbar";
+import StatusBadge  from "../components/StatusBadge";
 
 const PER_PAGE = 10;
 
@@ -30,6 +29,16 @@ const PAYMENT_COLUMNS = [
   { header: "Date" }, { header: "Actions" },
 ];
 
+function fmtDate(d) {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function cap(str) {
+  return str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "—";
+}
+
+// Client-side filter helpers (applied on top of the current page's content)
 function applyOrderFilter(orders, search, statusFilter, payFilter, dateFilter) {
   return orders.filter((o) => {
     const q = search.toLowerCase();
@@ -41,17 +50,10 @@ function applyOrderFilter(orders, search, statusFilter, payFilter, dateFilter) {
   });
 }
 
-
-
-function fmtDate(d) {
-  if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-}
-
 function applyPaymentFilter(payments, search, statusFilter, methodFilter, dateFilter) {
   return payments.filter((p) => {
     const q = search.toLowerCase();
-    const matchSearch = !search || String(p.paymentId ?? "").includes(q) || String(p.order?.orderId ?? "").includes(q) || (p.transactionId || "").toLowerCase().includes(q);
+    const matchSearch = !search || String(p.paymentId ?? "").includes(q) || String(p.orderId ?? "").includes(q) || (p.transactionId || "").toLowerCase().includes(q);
     const matchStatus = !statusFilter || (p.paymentStatus || "").toLowerCase() === statusFilter.toLowerCase();
     const matchMethod = !methodFilter || (p.paymentMethod || "").toLowerCase() === methodFilter.toLowerCase();
     const matchDate   = !dateFilter   || p.paymentDate === dateFilter;
@@ -59,73 +61,76 @@ function applyPaymentFilter(payments, search, statusFilter, methodFilter, dateFi
   });
 }
 
-
-
-function cap(str) {
-  return str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "—";
-}
-
 export default function OrdersPaymentManagementPage() {
 
+  const [toast, setToast] = useState({ show: false, msg: "", error: false });
   function showToast(msg, error = false) {
-  setToast({ show: true, msg, error });
+    setToast({ show: true, msg, error });
+    setTimeout(() => setToast({ show: false, msg: "", error: false }), 3000);
+  }
 
-  setTimeout(() => {
-    setToast({ show: false, msg: "", error: false });
-  }, 3000);
-}
-
-  const [toast, setToast] = useState({
-    show: false,
-    msg: "",
-    error: false,
-  });
   const dispatch = useDispatch();
-  const { orders, orderStats, ordersLoading, ordersError, payments, paymentStats, paymentsLoading, paymentsError, actionLoading } =
-    useSelector((s) => s.ordersPayments);
+  const {
+    orders, orderStats, ordersLoading, ordersError,
+    payments, paymentStats, paymentsLoading, paymentsError,
+    actionLoading,
+  } = useSelector((s) => s.ordersPayments);
+
+  // orders / payments are now page objects: { content, totalPages, totalElements, number }
+  const orderContent   = orders?.content   ?? [];
+  const paymentContent = payments?.content ?? [];
 
   const [activeTab, setActiveTab] = useState("orders");
 
-  // Order filters
+  // Order filters + server page
   const [oSearch,       setOSearch]       = useState("");
   const [oStatusFilter, setOStatusFilter] = useState("");
   const [oPayFilter,    setOPayFilter]    = useState("");
   const [oDateFilter,   setODateFilter]   = useState("");
-  const [oPage,         setOPage]         = useState(1);
+  const [oPage,         setOPage]         = useState(0); // 0-indexed for Spring
 
-  // Payment filters
-  const [pSearch,        setPSearch]        = useState("");
-  const [pStatusFilter,  setPStatusFilter]  = useState("");
-  const [pMethodFilter,  setPMethodFilter]  = useState("");
-  const [pDateFilter,    setPDateFilter]    = useState("");
-  const [pPage,          setPPage]          = useState(1);
+  // Payment filters + server page
+  const [pSearch,       setPSearch]       = useState("");
+  const [pStatusFilter, setPStatusFilter] = useState("");
+  const [pMethodFilter, setPMethodFilter] = useState("");
+  const [pDateFilter,   setPDateFilter]   = useState("");
+  const [pPage,         setPPage]         = useState(0); // 0-indexed for Spring
 
+  // Modals
   const [viewOrderModal, setViewOrderModal] = useState({ open: false, order: null });
   const [updateModal,    setUpdateModal]    = useState({ open: false, order: null });
   const [newOrderStatus, setNewOrderStatus] = useState("PLACED");
   const [viewPayModal,   setViewPayModal]   = useState({ open: false, payment: null });
 
+  // ── Fetch on page change ──
+  useEffect(() => {
+    dispatch(fetchAllOrders({ page: oPage, size: PER_PAGE }));
+  }, [dispatch, oPage]);
 
   useEffect(() => {
-    dispatch(fetchAllOrders()); dispatch(fetchOrderStats());
-    dispatch(fetchAllPayments()); dispatch(fetchPaymentStats());
+    dispatch(fetchAllPayments({ page: pPage, size: PER_PAGE }));
+  }, [dispatch, pPage]);
+
+  useEffect(() => {
+    dispatch(fetchOrderStats());
+    dispatch(fetchPaymentStats());
   }, [dispatch]);
 
-  useEffect(() => { setOPage(1); }, [oSearch, oStatusFilter, oPayFilter, oDateFilter]);
-  useEffect(() => { setPPage(1); }, [pSearch, pStatusFilter, pMethodFilter, pDateFilter]);
+  // Reset to first page when filters change
+  useEffect(() => { setOPage(0); }, [oSearch, oStatusFilter, oPayFilter, oDateFilter]);
+  useEffect(() => { setPPage(0); }, [pSearch, pStatusFilter, pMethodFilter, pDateFilter]);
 
   // ── Orders ──
-  const filteredOrders = applyOrderFilter(orders, oSearch, oStatusFilter, oPayFilter, oDateFilter).slice().reverse();
-  const oTotalPages = Math.max(1, Math.ceil(filteredOrders.length / PER_PAGE));
-  const oSafePage   = Math.min(oPage, oTotalPages);
-  const oStart      = (oSafePage - 1) * PER_PAGE;
-  const oSlice      = filteredOrders.slice(oStart, oStart + PER_PAGE);
+  const filteredOrders = applyOrderFilter(orderContent, oSearch, oStatusFilter, oPayFilter, oDateFilter);
+  const oTotalPages    = orders?.totalPages ?? 1;
+  const oTotalItems    = orders?.totalElements ?? 0;
 
   async function confirmOrderStatus() {
     if (!updateModal.order) return;
     const result = await dispatch(updateOrderStatus({ id: updateModal.order.orderId, status: newOrderStatus }));
     if (updateOrderStatus.fulfilled.match(result)) {
       showToast(`Order #${updateModal.order.orderId} updated to ${cap(newOrderStatus)}`);
+      dispatch(fetchAllOrders({ page: oPage, size: PER_PAGE }));
       dispatch(fetchOrderStats());
     } else {
       showToast(result.payload || "Update failed", true);
@@ -154,26 +159,23 @@ export default function OrdersPaymentManagementPage() {
   }
 
   // ── Payments ──
-  const filteredPayments = applyPaymentFilter(payments, pSearch, pStatusFilter, pMethodFilter, pDateFilter).slice().reverse();
-  const pTotalPages = Math.max(1, Math.ceil(filteredPayments.length / PER_PAGE));
-  const pSafePage   = Math.min(pPage, pTotalPages);
-  const pStart      = (pSafePage - 1) * PER_PAGE;
-  const pSlice      = filteredPayments.slice(pStart, pStart + PER_PAGE);
+  const filteredPayments = applyPaymentFilter(paymentContent, pSearch, pStatusFilter, pMethodFilter, pDateFilter);
+  const pTotalPages      = payments?.totalPages ?? 1;
+  const pTotalItems      = payments?.totalElements ?? 0;
 
   function renderPaymentRow(p) {
-    const pStatus = (p.status || "").toLowerCase();
-    const orderId =  p.orderId;
+    const pStatus = (p.paymentStatus || "").toLowerCase();
+    const orderId = p.orderId;
     const actions = [{ label: "View Details", className: "dd-view", onClick: () => setViewPayModal({ open: true, payment: p }) }];
     return (
       <DataRow key={p.paymentId}>
-        <td><span className="id-badge">#{p.paymentId}</span></td> 
-        {console.log(p.order?.orderId)}
-        <td><span className="id-badge">{orderId}</span></td>
+        <td><span className="id-badge">#{p.paymentId}</span></td>
+        <td><span className="id-badge">#{orderId ?? "—"}</span></td>
         <td style={{ fontSize: 11.5, fontFamily: "monospace", color: "var(--text-mid)" }}>{p.transactionId || "—"}</td>
         <td><span className="method-chip">{p.paymentMethod || "—"}</span></td>
-        <td className="amount-cell">₹{Number(p.paymentAmount ?? p.amount ?? 0).toFixed(2)}</td>
+        <td className="amount-cell">₹{Number(p.paymentAmount ?? 0).toFixed(2)}</td>
         <td><StatusBadge status={pStatus} preset="payment" /></td>
-        <td>{fmtDate(p.paymentDate ?? p.date)}</td>
+        <td>{fmtDate(p.paymentDate)}</td>
         <td><ActionMenu actions={actions} /></td>
       </DataRow>
     );
@@ -181,22 +183,30 @@ export default function OrdersPaymentManagementPage() {
 
   // ── Toolbar filter configs ──
   const orderFilters = [
-    { type:"select", value:oStatusFilter, onChange:(v)=>setOStatusFilter(v), options:[{value:"",label:"All Order Status"},{value:"placed",label:"Placed"},{value:"shipped",label:"Shipped"},{value:"delivered",label:"Delivered"},{value:"cancelled",label:"Cancelled"}] },
-    { type:"select", value:oPayFilter,    onChange:(v)=>setOPayFilter(v),    options:[{value:"",label:"All Payment"},{value:"success",label:"Success"},{value:"pending",label:"Pending"},{value:"failed",label:"Failed"}] },
-    { type:"date",   value:oDateFilter,   onChange:(v)=>setODateFilter(v),   title:"Filter by order date" },
+    { type: "select", value: oStatusFilter, onChange: (v) => setOStatusFilter(v), options: [{ value: "", label: "All Order Status" }, { value: "placed", label: "Placed" }, { value: "shipped", label: "Shipped" }, { value: "delivered", label: "Delivered" }, { value: "cancelled", label: "Cancelled" }] },
+    { type: "select", value: oPayFilter,    onChange: (v) => setOPayFilter(v),    options: [{ value: "", label: "All Payment" }, { value: "success", label: "Success" }, { value: "pending", label: "Pending" }, { value: "failed", label: "Failed" }] },
+    { type: "date",   value: oDateFilter,   onChange: (v) => setODateFilter(v),   title: "Filter by order date" },
   ];
   const paymentFilters = [
-    { type:"select", value:pStatusFilter, onChange:(v)=>setPStatusFilter(v), options:[{value:"",label:"All Status"},{value:"success",label:"Success"},{value:"pending",label:"Pending"},{value:"failed",label:"Failed"}] },
-    { type:"select", value:pMethodFilter, onChange:(v)=>setPMethodFilter(v), options:[{value:"",label:"All Methods"},{value:"upi",label:"UPI"},{value:"card",label:"Card"},{value:"netbanking",label:"NetBanking"},{value:"cod",label:"COD"}] },
-    { type:"date",   value:pDateFilter,   onChange:(v)=>setPDateFilter(v),   title:"Filter by payment date" },
+    { type: "select", value: pStatusFilter, onChange: (v) => setPStatusFilter(v), options: [{ value: "", label: "All Status" }, { value: "success", label: "Success" }, { value: "pending", label: "Pending" }, { value: "failed", label: "Failed" }] },
+    { type: "select", value: pMethodFilter, onChange: (v) => setPMethodFilter(v), options: [{ value: "", label: "All Methods" }, { value: "upi", label: "UPI" }, { value: "card", label: "Card" }, { value: "netbanking", label: "NetBanking" }, { value: "cod", label: "COD" }] },
+    { type: "date",   value: pDateFilter,   onChange: (v) => setPDateFilter(v),   title: "Filter by payment date" },
   ];
 
   return (
     <AdminLayout>
       <main className="content">
         <div className="tab-bar">
-          <button className={`tab-btn${activeTab==="orders"?"  active":""}`} onClick={() => setActiveTab("orders")} style = {{ backgroundColor:"#52a468", color:"#fff", border:"none", padding:"8px 16px", borderRadius:"6px", fontWeight:"600", cursor:"pointer" }}>📦 Orders Management</button>
-          <button className={`tab-btn${activeTab==="payments"?" active":""}`} onClick={() => setActiveTab("payments")} style = {{ backgroundColor:"#52a468", color:"#fff", border:"none", padding:"8px 16px", borderRadius:"6px", fontWeight:"600", cursor:"pointer",marginLeft:"20px" }}>💰 Payment Management</button>
+          <button
+            className={`tab-btn${activeTab === "orders" ? "  active" : ""}`}
+            onClick={() => setActiveTab("orders")}
+            style={{ backgroundColor: "#52a468", color: "#fff", border: "none", padding: "8px 16px", borderRadius: "6px", fontWeight: "600", cursor: "pointer" }}
+          >📦 Orders Management</button>
+          <button
+            className={`tab-btn${activeTab === "payments" ? " active" : ""}`}
+            onClick={() => setActiveTab("payments")}
+            style={{ backgroundColor: "#52a468", color: "#fff", border: "none", padding: "8px 16px", borderRadius: "6px", fontWeight: "600", cursor: "pointer", marginLeft: "20px" }}
+          >💰 Payment Management</button>
         </div>
 
         {/* ── ORDERS ── */}
@@ -211,9 +221,30 @@ export default function OrdersPaymentManagementPage() {
               <StatisticsCard icon="❌" value={orderStats.cancelled} label="Cancelled"    color="#e74c3c" />
             </section>
             <div className="table-card">
-              <TableToolbar title="All Orders" search={oSearch} onSearch={(v)=>{setOSearch(v);setOPage(1);}} placeholder="Search order ID or phone…" filters={orderFilters} />
-              <DataTable columns={ORDER_COLUMNS} data={oSlice} renderRow={renderOrderRow} loading={ordersLoading} error={ordersError?{message:ordersError}:null} emptyMessage="No orders found." />
-              <Pagination currentPage={oSafePage} totalPages={oTotalPages} totalItems={filteredOrders.length} itemsPerPage={PER_PAGE} onPageChange={setOPage} itemLabel="orders" />
+              <TableToolbar
+                title="All Orders"
+                search={oSearch}
+                onSearch={(v) => { setOSearch(v); setOPage(0); }}
+                placeholder="Search order ID or phone…"
+                filters={orderFilters}
+              />
+              <DataTable
+                columns={ORDER_COLUMNS}
+                data={filteredOrders}
+                renderRow={renderOrderRow}
+                loading={ordersLoading}
+                error={ordersError ? { message: ordersError } : null}
+                emptyMessage="No orders found."
+              />
+              {/* Pagination uses 1-indexed display; convert to/from 0-indexed Spring pages */}
+              <Pagination
+                currentPage={oPage + 1}
+                totalPages={oTotalPages}
+                totalItems={oTotalItems}
+                itemsPerPage={PER_PAGE}
+                onPageChange={(p) => setOPage(p - 1)}
+                itemLabel="orders"
+              />
             </div>
           </>
         )}
@@ -229,9 +260,29 @@ export default function OrdersPaymentManagementPage() {
               <StatisticsCard icon="❌" value={paymentStats.failed}  label="Failed"             color="#e74c3c" />
             </section>
             <div className="table-card">
-              <TableToolbar title="All Payments" search={pSearch} onSearch={(v)=>{setPSearch(v);setPPage(1);}} placeholder="Search TXN ID or order…" filters={paymentFilters} />
-              <DataTable columns={PAYMENT_COLUMNS} data={pSlice} renderRow={renderPaymentRow} loading={paymentsLoading} error={paymentsError?{message:paymentsError}:null} emptyMessage="No payments found." />
-              <Pagination currentPage={pSafePage} totalPages={pTotalPages} totalItems={filteredPayments.length} itemsPerPage={PER_PAGE} onPageChange={setPPage} itemLabel="payments" />
+              <TableToolbar
+                title="All Payments"
+                search={pSearch}
+                onSearch={(v) => { setPSearch(v); setPPage(0); }}
+                placeholder="Search TXN ID or order…"
+                filters={paymentFilters}
+              />
+              <DataTable
+                columns={PAYMENT_COLUMNS}
+                data={filteredPayments}
+                renderRow={renderPaymentRow}
+                loading={paymentsLoading}
+                error={paymentsError ? { message: paymentsError } : null}
+                emptyMessage="No payments found."
+              />
+              <Pagination
+                currentPage={pPage + 1}
+                totalPages={pTotalPages}
+                totalItems={pTotalItems}
+                itemsPerPage={PER_PAGE}
+                onPageChange={(p) => setPPage(p - 1)}
+                itemLabel="payments"
+              />
             </div>
           </>
         )}
@@ -243,14 +294,13 @@ export default function OrdersPaymentManagementPage() {
         return (
           <Modal title={`Order #${o.orderId} — Details`} onClose={() => setViewOrderModal({ open: false, order: null })} size="lg">
             <div className="order-detail-header">
-              {[["Order ID",`#${o.orderId}`],["Order Date",fmtDate(o.orderDate)],["Phone",o.phoneNumber||"—"],["Total Amount",`₹${Number(o.totalAmount??0).toFixed(2)}`]].map(([label,val]) => (
+              {[["Order ID", `#${o.orderId}`], ["Order Date", fmtDate(o.orderDate)], ["Phone", o.phoneNumber || "—"], ["Total Amount", `₹${Number(o.totalAmount ?? 0).toFixed(2)}`]].map(([label, val]) => (
                 <div className="odh-row" key={label}><span className="odh-label">{label}</span><span className="odh-val">{val}</span></div>
               ))}
-              <div className="odh-row"><span className="odh-label">Order Status</span><StatusBadge status={(o.orderStatus||"").toLowerCase()} preset="order" /></div>
-              <div className="odh-row"><span className="odh-label">Payment Status</span><StatusBadge status={(o.paymentStatus||"").toLowerCase()} preset="payment" /></div>
+              <div className="odh-row"><span className="odh-label">Order Status</span><StatusBadge status={(o.orderStatus || "").toLowerCase()} preset="order" /></div>
+              <div className="odh-row"><span className="odh-label">Payment Status</span><StatusBadge status={(o.paymentStatus || "").toLowerCase()} preset="payment" /></div>
             </div>
-            
-            </Modal>
+          </Modal>
         );
       })()}
 
@@ -258,15 +308,18 @@ export default function OrdersPaymentManagementPage() {
       {updateModal.open && updateModal.order && (
         <Modal title={`Update Status — Order #${updateModal.order.orderId}`} onClose={() => setUpdateModal({ open: false, order: null })} size="sm">
           <div className="mfield">
-            <label className="mlabel">Order Status <span style={{ color:"var(--red)" }}>*</span></label>
+            <label className="mlabel">Order Status <span style={{ color: "var(--red)" }}>*</span></label>
             <select className="mselect" value={newOrderStatus} onChange={(e) => setNewOrderStatus(e.target.value)}>
-              <option value="PLACED">Placed</option><option value="SHIPPED">Shipped</option>
-              <option value="DELIVERED">Delivered</option><option value="CANCELLED">Cancelled</option>
+              <option value="PLACED">Placed</option>
+              <option value="SHIPPED">Shipped</option>
+              <option value="DELIVERED">Delivered</option>
+              <option value="CANCELLED">Cancelled</option>
             </select>
           </div>
           <div className="admin-modal-footer">
-            
-            <button className="btn-save" onClick={confirmOrderStatus} disabled={actionLoading}>{actionLoading ? "Updating…" : "Update Status"}</button>
+            <button className="btn-save" onClick={confirmOrderStatus} disabled={actionLoading}>
+              {actionLoading ? "Updating…" : "Update Status"}
+            </button>
           </div>
         </Modal>
       )}
@@ -274,21 +327,29 @@ export default function OrdersPaymentManagementPage() {
       {/* VIEW PAYMENT MODAL */}
       {viewPayModal.open && viewPayModal.payment && (() => {
         const p = viewPayModal.payment;
-        const orderId = p.order?.orderId ?? p.orderId ?? "—";
+        const orderId = p.orderId ?? "—";
         return (
           <Modal title="Payment Details" onClose={() => setViewPayModal({ open: false, payment: null })} size="md">
             <div className="pay-detail-grid">
-              {[["Payment ID",`#${p.paymentId}`],["Order ID",`#${orderId}`],["Transaction ID",p.transactionId||"—"],["Payment Method",p.paymentMethod||"—"],["Amount",`₹${Number(p.paymentAmount??p.amount??0).toFixed(2)}`],["Payment Date",fmtDate(p.paymentDate??p.date)]].map(([label,val]) => (
+              {[
+                ["Payment ID", `#${p.paymentId}`],
+                ["Order ID", `#${orderId}`],
+                ["Transaction ID", p.transactionId || "—"],
+                ["Payment Method", p.paymentMethod || "—"],
+                ["Amount", `₹${Number(p.paymentAmount ?? 0).toFixed(2)}`],
+                ["Payment Date", fmtDate(p.paymentDate)],
+              ].map(([label, val]) => (
                 <div className="pay-detail-item" key={label}>
                   <span className="pay-detail-label">{label}</span>
-                  <span className="pay-detail-val" style={label==="Transaction ID"?{fontSize:12,fontFamily:"monospace"}:{}}>{val}</span>
+                  <span className="pay-detail-val" style={label === "Transaction ID" ? { fontSize: 12, fontFamily: "monospace" } : {}}>{val}</span>
                 </div>
               ))}
-              <div className="pay-detail-item" style={{ gridColumn:"1 / -1" }}>
+              <div className="pay-detail-item" style={{ gridColumn: "1 / -1" }}>
                 <span className="pay-detail-label">Status</span>
-                <StatusBadge status={(p.paymentStatus||"").toLowerCase()} preset="payment" />
+                <StatusBadge status={(p.paymentStatus || "").toLowerCase()} preset="payment" />
               </div>
-            </div></Modal>
+            </div>
+          </Modal>
         );
       })()}
 

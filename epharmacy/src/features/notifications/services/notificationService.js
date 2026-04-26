@@ -6,13 +6,18 @@ export async function getNotifications() {
   return res.data;
 }
 
+export async function broadcastNotification(data) {
+    const { res } = await api.post("/notifications/broadcast", data);
+    return res;
+}
+
 export async function getNotificationCount() {
   const res = await api.get(base+"/count");
   return res.data;
 }
 
 export async function markNotificationRead(id) {
-  const res = await api.patch(`${base}/notifications/${id}/read`);
+  const res = await api.patch(`${base}/${id}/read`);
   return res.data;
 }
 

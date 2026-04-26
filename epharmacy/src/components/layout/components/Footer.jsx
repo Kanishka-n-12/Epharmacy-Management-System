@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCategories } from "../../../features/categories/slices/categorySlice";
+import { fetchCategories } from "../../../features/categories/slices/categoryThunks";
 
 export default function Footer() {
   const navigate = useNavigate();

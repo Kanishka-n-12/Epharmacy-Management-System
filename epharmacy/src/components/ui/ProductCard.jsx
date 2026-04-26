@@ -17,6 +17,7 @@ export default function ProductCard({
   const { items } = useSelector((s) => s.cart);
 
   const cartItem = items.find(
+
     (i) => i.medicineId === productId && i.itemType === "cart"
   );
   const qty = cartItem?.quantity || 0;
@@ -49,6 +50,8 @@ export default function ProductCard({
       showToast(`${name} removed from cart`, "error");
     }
   }
+
+  
 
   return (
     <>
