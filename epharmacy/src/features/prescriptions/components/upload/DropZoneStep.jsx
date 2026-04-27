@@ -4,12 +4,7 @@ import { useRef, useState } from "react";
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
 const MAX_SIZE_MB = 20;
 
-/**
- * Step 1 — drag-and-drop / click-to-browse file picker.
- *
- * Props:
- *   onFile(file: File) — called when a valid file is chosen
- */
+
 export default function DropZoneStep({ onFile }) {
   const inputRef = useRef(null);
   const [dragOver, setDragOver] = useState(false);

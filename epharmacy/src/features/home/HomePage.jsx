@@ -8,7 +8,7 @@ import ProductSection from "./components/ProductSection";
 import LoadingState from "./components/LoadingState";
 import ErrorState from "./components/ErrorState";
 import NoResults from "./components/NoResults";
-import ToastMessage from "../../components/ui/ToastMessage"
+import Toast from "../admin/components/Toast";
 
 import { fetchNewLaunches } from "../medicines/slices/medicineThunks";
 
@@ -73,12 +73,12 @@ export default function HomePage() {
       )}
 
       {toast && (
-        <ToastMessage
-          message={toast.message}
-          type={toast.type}
-          onDone={() => setToast(null)}
-        />
-      )}
+  <Toast
+    show={true}
+    msg={toast.message}
+    type={toast.type}
+  />
+)}
     </>
   );
 }

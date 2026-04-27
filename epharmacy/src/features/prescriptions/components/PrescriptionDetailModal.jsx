@@ -71,10 +71,8 @@ export default function PrescriptionDetailModal({ prescription, onClose }) {
           <button className="rx-modal-close" onClick={onClose}>✕</button>
         </div>
 
-        {/* Body */}
         <div className="rx-modal-body">
 
-          {/* Doctor Info */}
           <p className="rx-modal-section-title">Doctor Information</p>
           <div className="rx-detail-grid">
             <div className="rx-detail-row">
@@ -91,7 +89,6 @@ export default function PrescriptionDetailModal({ prescription, onClose }) {
             </div>
           </div>
 
-          {/* File Preview */}
           <p className="rx-modal-section-title" style={{ marginTop: 18 }}>
             Prescription File
           </p>
@@ -152,7 +149,7 @@ export default function PrescriptionDetailModal({ prescription, onClose }) {
             </div>
           )}
 
-          {/* Medicines */}
+          
           {medicines.length > 0 && (
             <>
               <p className="rx-modal-section-title" style={{ marginTop: 18 }}>

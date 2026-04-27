@@ -30,13 +30,20 @@ export default function ProductCard({
   }
 
   function handleAdd() {
-    if (!isAuthenticated) {
-      showToast("Please login to add to cart", "error");
-      return;
-    }
-    dispatch(addToCart({ medicineId: productId, quantity: 1 }));
-    showToast(`${name} added to cart!`);
+  if (!isAuthenticated) {
+    showToast("Please login to add to cart", "error");
+    return;
   }
+
+  dispatch(addToCart({ medicineId: productId, quantity: 1 }))
+    .unwrap()
+    .then(() => {
+      showToast(`${name} added to cart!`, "success");
+    })
+    .catch((errorMessage) => {
+      showToast(errorMessage, "error");
+    });
+}
 
   function handlePlus() {
     dispatch(updateQty({ medicineId: productId, quantity: qty + 1 }));

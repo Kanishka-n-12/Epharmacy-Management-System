@@ -43,6 +43,7 @@ export default function RegisterModal({ show, onClose, onSwitchToLogin }) {
   const [errors, setErrors] = useState({});
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [apiError, setApiError] = useState("");
   const [toast, setToast] = useState({ show: false, msg: "", type: "success" });
 
   function showToast(msg, type = "success") {
@@ -69,30 +70,33 @@ export default function RegisterModal({ show, onClose, onSwitchToLogin }) {
   }
 
   async function handleSubmit(e) {
-    e.preventDefault();
-    if (!validate()) return;
+  e.preventDefault();
+  setApiError("");
+  if (!validate()) return;
 
-    const result = await dispatch(register({ phone, password, name: phone, email: "" }));
+  const result = await dispatch(register({ phone, password, name: phone, email: "" }));
 
-    if (register.fulfilled.match(result)) {
-      showToast("Registration successful! Please login.");
-      setTimeout(() => {
-        dispatch(clearMessages());
-        handleClose();
-        onSwitchToLogin?.();
-      }, 2000);
-      return;
-    }
-
-    if (register.rejected.match(result)) {
-      const msg = typeof result.payload === "string" ? result.payload : "Registration failed";
-      showToast(msg, "error");
-    }
+  if (register.fulfilled.match(result)) {
+    showToast("Registration successful! Please login."); 
+    setTimeout(() => {
+      dispatch(clearMessages());
+      handleClose();
+      onSwitchToLogin?.();
+    }, 2000);
+    return;
   }
+
+  if (register.rejected.match(result)) {
+    const msg = typeof result.payload === "string" ? result.payload : "Registration failed";
+    setApiError(msg); 
+  }
+}
 
   function handleReset() {
-    setPhone(""); setPassword(""); setConfirm(""); setErrors({});
-  }
+  setPhone(""); setPassword(""); setConfirm(""); 
+  setErrors({});
+  setApiError(""); 
+}
 
   function handleClose() {
     handleReset();
@@ -106,7 +110,9 @@ export default function RegisterModal({ show, onClose, onSwitchToLogin }) {
 
   return (
     <>
-      <Toast show={toast.show} msg={toast.msg} type={toast.type} />
+      {toast.show && toast.type === "success" && (
+  <Toast show={toast.show} msg={toast.msg} type={toast.type} />
+)}
 
       <Modal show={show} onHide={handleClose} centered backdrop="static" keyboard={false}>
         <div className="modal-content login-modal-content p-4">
@@ -125,6 +131,16 @@ export default function RegisterModal({ show, onClose, onSwitchToLogin }) {
             <p className="text-muted mb-4" style={{ fontSize: "0.72rem", textTransform: "uppercase" }}>
               Register with your phone number
             </p>
+
+                  {apiError && (
+        <div style={{
+          background: "#fce4e4", color: "#c62828", fontSize: "0.78rem",
+          fontWeight: 600, padding: "10px 14px", borderRadius: 8,
+          marginBottom: 16, textAlign: "left", border: "1px solid #f5c6c6",
+        }}>
+          {apiError}
+        </div>
+      )}
 
             <form onSubmit={handleSubmit} noValidate autoComplete="off">
               {/* PHONE */}

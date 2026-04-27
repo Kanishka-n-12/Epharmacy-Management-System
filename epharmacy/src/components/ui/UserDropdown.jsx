@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import { logout } from "../../features/auth/slice/authThunks";
+import Toast from "../../features/admin/components/Toast";
 import "./css/UserDropdown.css";
 
 export default function UserDropdown() {
@@ -10,7 +11,9 @@ export default function UserDropdown() {
   const { phone } = useSelector((s) => s.auth);
 
   const [open, setOpen] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
   const ref = useRef(null);
+
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -24,8 +27,11 @@ export default function UserDropdown() {
 
   async function handleLogout() {
     setOpen(false);
+    setToastMsg("Logged out successfully");
+    setTimeout(async () => {
     await dispatch(logout());
     navigate("/", { replace: true });
+  }, 1000);
   }
 
   return (
@@ -47,6 +53,7 @@ export default function UserDropdown() {
         </div>
       </div>
 
+      
       {open && (
         <ul className="user-menu">
           <li>
@@ -94,6 +101,11 @@ export default function UserDropdown() {
           </li>
         </ul>
       )}
+      <Toast
+  show={!!toastMsg}   
+  msg={toastMsg}
+  type="success"
+/>
     </div>
   );
 }

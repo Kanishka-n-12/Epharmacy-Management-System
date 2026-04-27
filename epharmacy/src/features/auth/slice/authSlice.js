@@ -48,17 +48,17 @@ const authSlice = createSlice({
         state.role            = payload.role;
         state.phone           = payload.phone;
       })
-      .addCase(login.rejected,  (state, { payload }) => { state.loading = false; state.error = payload; })
+      .addCase(login.rejected,  (state, { payload }) => { state.loading = false; state.error = null; })
 
       // ── Register ──
       .addCase(register.pending,   (state) => { state.loading = true;  state.error = null; state.success = null; })
       .addCase(register.fulfilled, (state) => { state.loading = false; state.success = "Registration successful! Please login."; })
-      .addCase(register.rejected,  (state, { payload }) => { state.loading = false; state.error = payload; state.success = null; })
+      .addCase(register.rejected,  (state, { payload }) => { state.loading = false; state.error = null; state.success = null; })
 
       // ── Forgot Password ──
       .addCase(forgotPassword.pending,   (state) => { state.loading = true;  state.error = null; })
       .addCase(forgotPassword.fulfilled, (state, { payload }) => { state.loading = false; state.success = payload; })
-      .addCase(forgotPassword.rejected,  (state, { payload }) => { state.loading = false; state.error = payload; })
+      .addCase(forgotPassword.rejected,  (state, { payload }) => { state.loading = false; state.error = null; })
 
       // ── Reset Password ──
       .addCase(resetPassword.pending,   (state) => { state.loading = true;  state.error = null; })

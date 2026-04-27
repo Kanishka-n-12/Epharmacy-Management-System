@@ -10,13 +10,14 @@ const phoneRegex = /^[6-9][0-9]{9}$/;
 
 export default function ForgotPasswordModal({ show, onClose, onOtpVerified }) {
   const dispatch = useDispatch();
-  const { loading, error, success } = useSelector((state) => state.auth);
+  const { loading, success } = useSelector((state) => state.auth);
 
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [otpStep, setOtpStep] = useState(false);
   const [errors, setErrors] = useState({});
   const [toast, setToast] = useState({ show: false, msg: "", type: "success" });
+  const [apiError, setApiError] = useState("");
 
   function showToast(msg, type = "success") {
     setToast({ show: true, msg, type });
@@ -24,37 +25,45 @@ export default function ForgotPasswordModal({ show, onClose, onOtpVerified }) {
   }
 
   async function handleSubmit(e) {
-    e.preventDefault();
+  e.preventDefault();
+  setApiError("");
 
-    if (!otpStep) {
-      if (!phone) return setErrors({ phone: "Phone cannot be empty" });
-      if (!phoneRegex.test(phone)) return setErrors({ phone: "Must be 10 digits, starts with 6-9" });
+  if (!otpStep) {
+    if (!phone) return setErrors({ phone: "Phone cannot be empty" });
+    if (!phoneRegex.test(phone)) return setErrors({ phone: "Must be 10 digits, starts with 6-9" });
 
-      const result = await dispatch(forgotPassword(phone));
-      if (forgotPassword.fulfilled.match(result)) {
-        setOtpStep(true);
-        setErrors({});
-        showToast("OTP sent successfully!");
-      }
-    } else {
-      if (!otp) return setErrors({ otp: "Please enter the code" });
-      handleReset();
-      onClose();
-      onOtpVerified?.({ phone, otp });
+    const result = await dispatch(forgotPassword(phone));
+    if (forgotPassword.fulfilled.match(result)) {
+      setOtpStep(true);
+      setErrors({});
+      showToast("OTP sent successfully!"); 
     }
+    if (forgotPassword.rejected.match(result)) {
+      const msg = typeof result.payload === "string" ? result.payload : "Failed to send OTP";
+      setApiError(msg); 
+    }
+  } else {
+    if (!otp) return setErrors({ otp: "Please enter the code" });
+    handleReset();
+    onClose();
+    onOtpVerified?.({ phone, otp });
   }
+}
 
   function handleReset() {
     setPhone(""); setOtp(""); setOtpStep(false); setErrors({});
+     setApiError("");
     dispatch(clearMessages());
   }
 
-  useEffect(() => { if (error) showToast(error, "error"); }, [error]);
+  
   useEffect(() => { if (success) showToast(success); }, [success]);
 
   return (
     <>
-      <Toast show={toast.show} msg={toast.msg} type={toast.type} />
+      {toast.show && toast.type === "success" && (
+  <Toast show={toast.show} msg={toast.msg} type={toast.type} />
+)}
 
       <Modal show={show} onHide={() => { handleReset(); onClose(); }} centered backdrop="static" keyboard={false}>
         <div className="modal-content login-modal-content p-4">
@@ -72,7 +81,15 @@ export default function ForgotPasswordModal({ show, onClose, onOtpVerified }) {
 
           <div className="modal-body text-center pt-2">
             <h5 className="fw-bold mb-1">Forgot Password</h5>
-
+                    {apiError && (
+          <div style={{
+            background: "#fce4e4", color: "#c62828", fontSize: "0.78rem",
+            fontWeight: 600, padding: "10px 14px", borderRadius: 8,
+            marginBottom: 16, textAlign: "left", border: "1px solid #f5c6c6",
+          }}>
+            {apiError}
+          </div>
+        )}
             <form onSubmit={handleSubmit}>
               <div className="mb-3 text-start">
                 <label className="form-label fw-bold" style={{ fontSize: "0.78rem" }}>

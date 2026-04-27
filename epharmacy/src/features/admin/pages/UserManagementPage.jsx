@@ -51,11 +51,11 @@ const VALIDATION = {
     return null;
   },
   phone: (v) => {
-    if (!v) return "Phone is required.";
-    if (!/^\d{10}$/.test(v)) return "Must be exactly 10 digits.";
-    if (/^0+$/.test(v)) return "Enter a valid phone number.";
-    return null;
-  },
+  if (!v) return "Phone is required.";
+  if (!/^[6-9]\d{9}$/.test(v)) 
+    return "Must start with 6-9 and be exactly 10 digits.";
+  return null;
+},
   gender:   (v) => (!v ? "Please select a gender." : null),
   roleId:   (v) => (!v ? "Please select a role."   : null),
   status:   (v) => (!v ? "Please select a status."  : null),

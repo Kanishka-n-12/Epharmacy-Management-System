@@ -50,16 +50,21 @@ const ordersPaymentsSlice = createSlice({
 
       .addCase(updateOrderStatus.pending,   (state) => { state.actionLoading = true;  state.actionError = null; })
       .addCase(updateOrderStatus.fulfilled, (state, { payload }) => {
-        state.actionLoading = false;
-        const { id, status } = payload;
-        const order = state.orders.find((o) => o.orderId === id);
-        if (order) order.orderStatus = status;
-        state.orderStats.placed    = state.orders.filter((o) => statusLower(o.orderStatus) === "placed").length;
-        state.orderStats.shipped   = state.orders.filter((o) => statusLower(o.orderStatus) === "shipped").length;
-        state.orderStats.delivered = state.orders.filter((o) => statusLower(o.orderStatus) === "delivered").length;
-        state.orderStats.cancelled = state.orders.filter((o) => statusLower(o.orderStatus) === "cancelled").length;
-        state.orderStats.total     = state.orders.length;
-      })
+  state.actionLoading = false;
+  const { id, status } = payload;
+
+  
+  const order = state.orders.content.find((o) => o.orderId === id);
+  if (order) order.orderStatus = status;
+
+ 
+  const orders = state.orders.content;
+  state.orderStats.placed    = orders.filter((o) => statusLower(o.orderStatus) === "placed").length;
+  state.orderStats.shipped   = orders.filter((o) => statusLower(o.orderStatus) === "shipped").length;
+  state.orderStats.delivered = orders.filter((o) => statusLower(o.orderStatus) === "delivered").length;
+  state.orderStats.cancelled = orders.filter((o) => statusLower(o.orderStatus) === "cancelled").length;
+  state.orderStats.total     = orders.length;
+})
       .addCase(updateOrderStatus.rejected,  (state, { payload, error }) => { state.actionLoading = false; state.actionError = payload ?? error.message; })
 
       .addCase(fetchAllPayments.pending,   (state) => { state.paymentsLoading = true;  state.paymentsError = null; })
@@ -83,15 +88,20 @@ const ordersPaymentsSlice = createSlice({
 
       .addCase(updatePaymentStatus.pending,   (state) => { state.actionLoading = true;  state.actionError = null; })
       .addCase(updatePaymentStatus.fulfilled, (state, { payload }) => {
-        state.actionLoading = false;
-        const { id, status } = payload;
-        const payment = state.payments.find((p) => p.paymentId === id);
-        if (payment) payment.paymentStatus = status;
-        state.paymentStats.success = state.payments.filter((p) => statusLower(p.paymentStatus) === "success").length;
-        state.paymentStats.pending = state.payments.filter((p) => statusLower(p.paymentStatus) === "pending").length;
-        state.paymentStats.failed  = state.payments.filter((p) => statusLower(p.paymentStatus) === "failed").length;
-        state.paymentStats.total   = state.payments.length;
-      })
+  state.actionLoading = false;
+  const { id, status } = payload;
+
+ 
+  const payment = state.payments.content.find((p) => p.paymentId === id);
+  if (payment) payment.paymentStatus = status;
+
+
+  const payments = state.payments.content;
+  state.paymentStats.success = payments.filter((p) => statusLower(p.paymentStatus) === "success").length;
+  state.paymentStats.pending = payments.filter((p) => statusLower(p.paymentStatus) === "pending").length;
+  state.paymentStats.failed  = payments.filter((p) => statusLower(p.paymentStatus) === "failed").length;
+  state.paymentStats.total   = payments.length;
+})
       .addCase(updatePaymentStatus.rejected,  (state, { payload, error }) => { state.actionLoading = false; state.actionError = payload ?? error.message; });
   },
 });

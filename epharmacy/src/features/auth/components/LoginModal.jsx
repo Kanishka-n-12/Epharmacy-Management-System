@@ -71,11 +71,13 @@ export default function LoginModal({ show, onClose, onSwitchToRegister, onSwitch
 
   return (
     <>
-      
+    {toast.show && toast.type === "success" && (
+  <Toast show={toast.show} msg={toast.msg} type={toast.type} />
+)}
 
       <Modal show={show} onHide={onClose} centered backdrop="static" keyboard={false}>
         <div className="modal-content login-modal-content p-4">
-          <Toast show={toast.show} msg={toast.msg} type={toast.type} />
+          
           <div className="modal-header border-0 pb-0 justify-content-center position-relative">
             <button type="button" className="btn-close position-absolute top-0 end-0 m-2" onClick={onClose} />
             <div className="d-flex flex-column align-items-center gap-1">

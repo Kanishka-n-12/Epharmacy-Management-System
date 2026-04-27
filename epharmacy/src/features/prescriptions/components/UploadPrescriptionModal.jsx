@@ -62,7 +62,6 @@ export default function UploadPrescriptionModal({ onSubmit, onClose, uploading }
         {/* ── Header ── */}
         <div className="upload-modal__header">
           <div className="upload-modal__header-left">
-            <span className="upload-modal__header-icon">💊</span>
             <div>
               <h2 className="upload-modal__title">Upload Prescription</h2>
               <p className="upload-modal__subtitle">
@@ -81,8 +80,7 @@ export default function UploadPrescriptionModal({ onSubmit, onClose, uploading }
             ✕
           </button>
         </div>
-
-        {/* ── Step indicator ── */}
+        
         <div className="upload-modal__steps">
           {["Upload", "Scan", "Review"].map((label, i) => {
             const stepNum = i + 1;
