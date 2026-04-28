@@ -3,9 +3,9 @@ import userService from "../services/userService";
 
 export const fetchUsers = createAsyncThunk(
   "users/fetchUsers",
-  async ({ page = 0, size = 10 } = {}, thunkAPI) => {
+  async ({ page = 0, size = 10, search = "", status = "", role = "" } = {}, thunkAPI) => {
     try {
-      return await userService.fetchAll(page, size);
+      return await userService.fetchAll(page, size, search, status, role);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data ?? err.message);
     }

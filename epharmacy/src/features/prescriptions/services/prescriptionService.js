@@ -1,4 +1,4 @@
-// features/prescriptions/services/prescriptionService.js
+
 import api from "../../../api";
 
 const prescriptionService = {
@@ -9,11 +9,7 @@ const prescriptionService = {
   getPrescription: (id) =>
     api.get(`/prescriptions/${id}`).then((r) => r.data),
 
-  /**
-   * Upload a file for OCR scanning.
-   * Returns OcrResultDTO: { rawText, filePath, doctorName,
-   *   doctorRegisteredId, prescribedDate, medicines[] }
-   */
+ 
   scanPrescription: (file) => {
     const form = new FormData();
     form.append("file", file);
@@ -24,11 +20,7 @@ const prescriptionService = {
       .then((r) => r.data);
   },
 
-  /**
-   * Submit the reviewed/corrected prescription data.
-   * dto = { filePath, doctorName, doctorRegisteredId,
-   *         prescribedDate, medicines[] }
-   */
+ 
   uploadPrescription: (dto) =>
     api.post("/prescriptions", dto).then((r) => r.data),
 

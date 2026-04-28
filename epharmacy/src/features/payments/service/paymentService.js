@@ -2,8 +2,6 @@ import axios from "axios";
 
 import api from "../../../api";
 
-
-
 export const paymentService = {
   getBillSummary: (orderId) =>
     api.get(`/payments/bill-summary/${orderId}`).then((r) => r.data),

@@ -29,9 +29,12 @@ export default function LoginModal({ show, onClose, onSwitchToRegister, onSwitch
 
   function validate() {
     const e = {};
-    if (!phone) e.phone = "Phone number cannot be empty";
-    else if (!phoneRegex.test(phone)) e.phone = "Must be 10 digits, starts with 6-9";
-    if (!password) e.password = "Password cannot be empty";
+    if (!phone) 
+      e.phone = "Phone number cannot be empty";
+    else if (!phoneRegex.test(phone))
+       e.phone = "Must be 10 digits, starts with 6-9";
+    if (!password)
+       e.password = "Password cannot be empty";
     setErrors(e);
     return Object.keys(e).length === 0;
   }

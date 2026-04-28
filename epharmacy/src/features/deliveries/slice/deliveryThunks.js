@@ -7,9 +7,9 @@ import {
 
 export const fetchDeliveries = createAsyncThunk(
   "deliveries/fetchDeliveries",
-  async ({ page = 0, size = 10 } = {}, { rejectWithValue }) => {
+  async ({ page = 0, size = 10, search = "", status = "", date = "" } = {}, { rejectWithValue }) => {
     try {
-      return await getAllDeliveries(page, size);
+      return await getAllDeliveries(page, size, search, status, date);
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);
     }

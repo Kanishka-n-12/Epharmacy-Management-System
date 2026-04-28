@@ -15,9 +15,15 @@ export const getMedicineStats = () =>
 export const addMedicine = (dto) =>
   api.post("/admin/medicines", dto).then((r) => r.data);
 
-export const getMedicineForAdmin = (page = 0, size = 10) =>
-  api.get("/admin/all-medicines", { params: { page, size } }).then((r) => r.data);
-
+export const getMedicineForAdmin = (page = 0, size = 10, search = "", status = "") =>
+  api.get("/admin/all-medicines", {
+    params: {
+      page,
+      size,
+      ...(search ? { search } : {}),
+      ...(status ? { status } : {}),
+    },
+  }).then((r) => r.data);
 export const updateMedicine = (id, dto) =>
   api.put(`/admin/medicines/${id}`, dto).then((r) => r.data);
 

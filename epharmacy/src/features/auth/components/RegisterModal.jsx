@@ -143,7 +143,7 @@ export default function RegisterModal({ show, onClose, onSwitchToLogin }) {
       )}
 
             <form onSubmit={handleSubmit} noValidate autoComplete="off">
-              {/* PHONE */}
+              
               <div className="mb-3 text-start">
                 <label className="form-label fw-bold" style={{ fontSize: "0.78rem" }}>
                   Phone Number <Required />
@@ -156,7 +156,7 @@ export default function RegisterModal({ show, onClose, onSwitchToLogin }) {
                 {errors.phone && <div className="text-danger" style={{ fontSize: "0.7rem" }}>{errors.phone}</div>}
               </div>
 
-              {/* PASSWORD */}
+             
               <div className="mb-3 text-start">
                 <label className="form-label fw-bold" style={{ fontSize: "0.78rem" }}>
                   Password <Required />

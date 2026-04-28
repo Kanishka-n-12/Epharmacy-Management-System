@@ -38,28 +38,9 @@ function cap(str) {
   return str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "—";
 }
 
-// Client-side filter helpers (applied on top of the current page's content)
-function applyOrderFilter(orders, search, statusFilter, payFilter, dateFilter) {
-  return orders.filter((o) => {
-    const q = search.toLowerCase();
-    const matchSearch = !search || String(o.orderId).includes(q) || (o.phoneNumber || "").toLowerCase().includes(q);
-    const matchStatus = !statusFilter || (o.orderStatus || "").toLowerCase() === statusFilter.toLowerCase();
-    const matchPay    = !payFilter    || (o.paymentStatus || "").toLowerCase() === payFilter.toLowerCase();
-    const matchDate   = !dateFilter   || o.orderDate === dateFilter;
-    return matchSearch && matchStatus && matchPay && matchDate;
-  });
-}
 
-function applyPaymentFilter(payments, search, statusFilter, methodFilter, dateFilter) {
-  return payments.filter((p) => {
-    const q = search.toLowerCase();
-    const matchSearch = !search || String(p.paymentId ?? "").includes(q) || String(p.orderId ?? "").includes(q) || (p.transactionId || "").toLowerCase().includes(q);
-    const matchStatus = !statusFilter || (p.paymentStatus || "").toLowerCase() === statusFilter.toLowerCase();
-    const matchMethod = !methodFilter || (p.paymentMethod || "").toLowerCase() === methodFilter.toLowerCase();
-    const matchDate   = !dateFilter   || p.paymentDate === dateFilter;
-    return matchSearch && matchStatus && matchMethod && matchDate;
-  });
-}
+
+
 
 export default function OrdersPaymentManagementPage() {
 
@@ -103,13 +84,13 @@ export default function OrdersPaymentManagementPage() {
   const [viewPayModal,   setViewPayModal]   = useState({ open: false, payment: null });
 
   // ── Fetch on page change ──
-  useEffect(() => {
-    dispatch(fetchAllOrders({ page: oPage, size: PER_PAGE }));
-  }, [dispatch, oPage]);
+useEffect(() => {
+  dispatch(fetchAllOrders({ page: oPage, size: PER_PAGE, search: oSearch, orderStatus: oStatusFilter, paymentStatus: oPayFilter, date: oDateFilter }));
+}, [dispatch, oPage, oSearch, oStatusFilter, oPayFilter, oDateFilter]);
 
-  useEffect(() => {
-    dispatch(fetchAllPayments({ page: pPage, size: PER_PAGE }));
-  }, [dispatch, pPage]);
+useEffect(() => {
+  dispatch(fetchAllPayments({ page: pPage, size: PER_PAGE, search: pSearch, status: pStatusFilter, method: pMethodFilter, date: pDateFilter }));
+}, [dispatch, pPage, pSearch, pStatusFilter, pMethodFilter, pDateFilter]);
 
   useEffect(() => {
     dispatch(fetchOrderStats());
@@ -121,7 +102,7 @@ export default function OrdersPaymentManagementPage() {
   useEffect(() => { setPPage(0); }, [pSearch, pStatusFilter, pMethodFilter, pDateFilter]);
 
   // ── Orders ──
-  const filteredOrders = applyOrderFilter(orderContent, oSearch, oStatusFilter, oPayFilter, oDateFilter);
+const filteredOrders   = orderContent;
   const oTotalPages    = orders?.totalPages ?? 1;
   const oTotalItems    = orders?.totalElements ?? 0;
 
@@ -159,7 +140,8 @@ export default function OrdersPaymentManagementPage() {
   }
 
   // ── Payments ──
-  const filteredPayments = applyPaymentFilter(paymentContent, pSearch, pStatusFilter, pMethodFilter, pDateFilter);
+  
+const filteredPayments = paymentContent;
   const pTotalPages      = payments?.totalPages ?? 1;
   const pTotalItems      = payments?.totalElements ?? 0;
 

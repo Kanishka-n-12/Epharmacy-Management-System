@@ -31,6 +31,7 @@ const orderSlice = createSlice({
     builder
       .addCase(fetchOrders.pending,   (state) => { state.loading = true;  state.error = null; })
       .addCase(fetchOrders.fulfilled, (state, { payload }) => {
+        state.loading = false; 
   console.log("fetchOrders payload:", payload, Array.isArray(payload));
   state.orders = Array.isArray(payload) ? payload : (payload.orders ?? []);
 })

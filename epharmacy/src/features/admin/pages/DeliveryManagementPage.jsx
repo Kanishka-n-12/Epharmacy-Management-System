@@ -31,17 +31,7 @@ function fmtDate(d) {
   return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-function applyFilter(deliveries, search, statusFilter, dateFilter) {
-  return deliveries.filter((d) => {
-    const q = search.toLowerCase();
-    const matchSearch = !search ||
-      String(d.deliveryId ?? "").includes(q) || String(d.orderId ?? "").includes(q) ||
-      String(d.userId ?? "").includes(q)     || (d.trackingNumber ?? "").toLowerCase().includes(q);
-    const matchStatus = !statusFilter || (d.orderStatus ?? "").toLowerCase() === statusFilter;
-    const matchDate   = !dateFilter   || d.estimatedDeliveryDate === dateFilter;
-    return matchSearch && matchStatus && matchDate;
-  });
-}
+
 
 export default function DeliveryManagementPage() {
 
@@ -69,17 +59,17 @@ export default function DeliveryManagementPage() {
   const [statusModal, setStatusModal] = useState({ open: false, delivery: null, newStatus: "" });
   const [cancelModal, setCancelModal] = useState({ open: false, delivery: null });
 
-  // Fetch when page changes
-  useEffect(() => {
-    dispatch(fetchDeliveries({ page, size: PER_PAGE }));
-    dispatch(fetchDeliveryStats());
-  }, [dispatch, page]);
+  
+ useEffect(() => {
+  dispatch(fetchDeliveries({ page, size: PER_PAGE, search, status: statusFilter, date: dateFilter }));
+  dispatch(fetchDeliveryStats());
+}, [dispatch, page, search, statusFilter, dateFilter]);
 
   // Reset to page 0 when filters change
   useEffect(() => { setPage(0); }, [search, statusFilter, dateFilter]);
 
   // Client-side filter on current page data only
-  const filtered = applyFilter(deliveries, search, statusFilter, dateFilter);
+  const filtered = deliveries; 
 
   async function saveStatus() {
     const { delivery, newStatus } = statusModal;

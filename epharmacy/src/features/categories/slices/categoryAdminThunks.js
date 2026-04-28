@@ -11,9 +11,9 @@ import axios from "axios";
 
 export const fetchCategories = createAsyncThunk(
   "categories/fetchCategories",
-  async ({ page = 0, size = 10 } = {}, { rejectWithValue }) => {
+  async ({ page = 0, size = 10, search = "", status = "" } = {}, { rejectWithValue }) => {
     try {
-      const data = await getAllCategoriesAdmin(page, size);
+      const data = await getAllCategoriesAdmin(page, size, search, status); 
       return {
         content:       data.content       ?? [],
         totalPages:    data.totalPages    ?? 1,
@@ -23,7 +23,7 @@ export const fetchCategories = createAsyncThunk(
       return rejectWithValue(err.response?.data?.message ?? err.message);
     }
   }
-);
+);  
 
 export const fetchCategoryById = createAsyncThunk(
   "categories/fetchCategoryById",

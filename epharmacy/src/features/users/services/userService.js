@@ -2,8 +2,13 @@
 import api from "../../../api";
 
 const userService = {
-  fetchAll: (page = 0, size = 10) =>
-  api.get(`/admin/users?page=${page}&size=${size}`).then(r => r.data),
+  fetchAll: (page = 0, size = 10, search = "", status = "", role = "") => {
+    const params = new URLSearchParams({ page, size });
+    if (search) params.append("search", search);
+    if (status) params.append("status", status);
+    if (role)   params.append("role", role);
+    return api.get(`/admin/users?${params}`).then(r => r.data);
+  },
   
   fetchStats: () =>
     api.get("/admin/users/stats").then(r => r.data),

@@ -12,7 +12,6 @@ import {
   fetchBatches, createBatch, editBatch, removeBatch,
   fetchCategories, fetchAllMedicinesForAdmin,
 } from "../../medicines/slices/medicineThunks";
-
 import TableToolbar      from "../components/TableToolbar";
 import AdminConfirmModal from "../components/AdminConfirmModal";
 import StatusBadge       from "../components/StatusBadge";
@@ -40,43 +39,35 @@ const EMPTY_MED_FORM = {
 
 const EMPTY_BATCH_FORM = { batchNumber: "", expiryDate: "", quantity: "" };
 
-function applyFilter(medicines, search, statusFilter) {
-  return medicines.filter((m) => {
-    const q = search.toLowerCase();
-    const matchSearch = !search ||
-      m.name?.toLowerCase().includes(q) ||
-      m.description?.toLowerCase().includes(q) ||
-      m.categoryName?.toLowerCase().includes(q);
-    const matchStatus = !statusFilter || m.status?.toLowerCase() === statusFilter.toLowerCase();
-    return matchSearch && matchStatus;
-  });
-}
-
 function expiryStatus(dateStr) {
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const in90  = new Date(); in90.setDate(today.getDate() + 90);
   const exp   = new Date(dateStr);
   if (exp < today) return "expired";
-  if (exp <= in90)  return "soon";
+  if (exp <= in90) return "soon";
   return "ok";
 }
+
 function expiryLabel(s) {
   if (s === "expired") return "Expired";
   if (s === "soon")    return "Expiring Soon";
   return "Valid";
 }
+
 function batchStockLabel(qty) {
   if (qty === 0)  return "Out of Stock";
   if (qty <= 5)   return "Critical";
   if (qty <= 50)  return "Low Stock";
   return "In Stock";
 }
+
 function batchStockClass(qty) {
   if (qty === 0)  return "bstock-out";
   if (qty <= 5)   return "bstock-critical";
   if (qty <= 50)  return "bstock-low";
   return "bstock-ok";
 }
+
 function todayISO() { return new Date().toISOString().split("T")[0]; }
 
 function validateMedForm(form, isEdit) {
@@ -153,6 +144,7 @@ function validateMedForm(form, isEdit) {
 }
 
 function Req() { return <span style={{ color: "var(--red)" }}>*</span>; }
+
 function FieldWrap({ children, error, full }) {
   return (
     <div className={`mfield-wrap${full ? " full" : ""}`} style={full ? { gridColumn: "1 / -1" } : {}}>
@@ -174,9 +166,10 @@ export default function MedicineManagementPage() {
   const [localTotalElements, setLocalTotalElements]  = useState(0);
   const [localStats,         setLocalStats]          = useState({ total: 0, available: 0, notAvailable: 0 });
 
-  const [search,       setSearch]       = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [page,         setPage]         = useState(1);
+  const [search,         setSearch]         = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [statusFilter,   setStatusFilter]   = useState("");
+  const [page,           setPage]           = useState(1);
 
   const [expandedRows, setExpandedRows] = useState(new Set());
   const [batchFetched, setBatchFetched] = useState(new Set());
@@ -202,11 +195,28 @@ export default function MedicineManagementPage() {
     setTimeout(() => setToast({ show: false, msg: "", error: false }), 3000);
   }
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter]);
+
   function loadMedicines(pageNum = 1) {
-    dispatch(fetchAllMedicinesForAdmin({ page: pageNum - 1, size: PER_PAGE })).then((result) => {
+    dispatch(fetchAllMedicinesForAdmin({
+      page:   pageNum - 1,
+      size:   PER_PAGE,
+      search: debouncedSearch,
+      status: statusFilter,
+    })).then((result) => {
       if (fetchAllMedicinesForAdmin.fulfilled.match(result)) {
         const data = result.payload;
-        const raw  = data?.content ?? (Array.isArray(data) ? data : []);
+        const raw  = data?.content ?? [];
         setLocalMedicines(raw);
         setLocalTotalPages(data?.totalPages    ?? 1);
         setLocalTotalElements(data?.totalElements ?? 0);
@@ -226,14 +236,10 @@ export default function MedicineManagementPage() {
 
   useEffect(() => {
     loadMedicines(page);
-  }, [dispatch, page]);
+  }, [page, debouncedSearch, statusFilter]);
 
-  useEffect(() => { setPage(1); }, [search, statusFilter]);
-
-  const filtered  = applyFilter(localMedicines, search, statusFilter);
-  const safePage  = page;
-  const start     = (safePage - 1) * PER_PAGE;
-  const pageSlice = filtered;
+  const pageSlice = localMedicines;
+  const start     = (page - 1) * PER_PAGE;
 
   function setField(key, value) {
     setMedForm((f) => ({ ...f, [key]: value }));
@@ -533,7 +539,7 @@ export default function MedicineManagementPage() {
           <TableToolbar
             title="All Medicines"
             search={search}
-            onSearch={(v) => { setSearch(v); setPage(1); }}
+            onSearch={(v) => { setSearch(v); }}
             placeholder="Search medicine…"
             filters={toolbarFilters}
           />
@@ -543,7 +549,7 @@ export default function MedicineManagementPage() {
             emptyMessage="No medicines found."
           />
           <Pagination
-            currentPage={safePage}
+            currentPage={page}
             totalPages={localTotalPages}
             totalItems={localTotalElements}
             itemsPerPage={PER_PAGE}

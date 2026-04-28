@@ -25,9 +25,9 @@ export const fetchNewLaunches = createAsyncThunk(
 
 export const fetchAllMedicinesForAdmin = createAsyncThunk(
   "medicines/fetchAllMedicinesAdmin",
-  async ({ page = 0, size = 10 } = {}, { rejectWithValue }) => {
+  async ({ page = 0, size = 10, search = "", status = "" } = {}, { rejectWithValue }) => {
     try {
-      const data = await getMedicineForAdmin(page, size);
+      const data = await getMedicineForAdmin(page, size, search, status);
       return {
         content:       data.content       ?? [],
         totalPages:    data.totalPages    ?? 1,

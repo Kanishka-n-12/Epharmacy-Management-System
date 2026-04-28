@@ -109,14 +109,14 @@ const { users, loading, error, totalPages, totalElements, stats: userStats = { t
 
 
   useEffect(() => {
-  dispatch(fetchUsers({ page: page - 1, size: PER_PAGE }));
-}, [dispatch, page]);
+  dispatch(fetchUsers({ page: page - 1, size: PER_PAGE, search, status: statusFilter, role: roleFilter }));
+}, [dispatch, page, search, statusFilter, roleFilter]);
 
 useEffect(() => {
   dispatch(fetchUserStats());
 }, [dispatch]);
 
-  const slice = [...users].reverse();
+  const slice = users;   
 
   const today = new Date().toISOString().slice(0, 10);
   const stats = [

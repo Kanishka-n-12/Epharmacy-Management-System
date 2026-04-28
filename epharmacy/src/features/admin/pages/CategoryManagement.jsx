@@ -53,26 +53,31 @@ export default function CategoryManagement() {
   }
 
   function refreshData() {
-    dispatch(fetchCategories({ page: page - 1, size: PER_PAGE })).then((result) => {
-      if (fetchCategories.fulfilled.match(result)) {
-        const data = result.payload;
-        const raw  = data?.content ?? (Array.isArray(data) ? data : []);
-        setLocalCategories([...raw].reverse());
-        setLocalTotalPages(data?.totalPages    ?? 1);
-        setLocalTotal(     data?.totalElements ?? 0);
-      }
-    });
+  dispatch(fetchCategories({
+    page: page - 1,
+    size: PER_PAGE,
+    search,
+    status: statusFilter,
+  })).then((result) => {
+    if (fetchCategories.fulfilled.match(result)) {
+      const data = result.payload;
+      const raw  = data?.content ?? (Array.isArray(data) ? data : []);
+      setLocalCategories([...raw]);
+      setLocalTotalPages(data?.totalPages    ?? 1);
+      setLocalTotal(     data?.totalElements ?? 0);
+    }
+  });
 
-    dispatch(fetchCategoryStats()).then((result) => {
-      if (fetchCategoryStats.fulfilled.match(result)) {
-        setLocalStats(result.payload);
-      }
-    });
-  }
+  dispatch(fetchCategoryStats()).then((result) => {
+    if (fetchCategoryStats.fulfilled.match(result)) {
+      setLocalStats(result.payload);
+    }
+  });
+}
 
   useEffect(() => {
-    refreshData();
-  }, [dispatch, page]);
+  refreshData();
+}, [dispatch, page, search, statusFilter]);
 
   const slice = localCategories;
 

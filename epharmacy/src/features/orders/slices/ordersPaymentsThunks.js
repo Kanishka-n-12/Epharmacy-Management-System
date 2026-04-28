@@ -12,8 +12,16 @@ import {
 
 export const fetchAllOrders = createAsyncThunk(
   "ordersPayments/fetchAllOrders",
-  async ({ page = 0, size = 10 } = {}, { rejectWithValue }) => {
-    try { return await getAllOrdersAdmin(page, size); }
+  async ({ page = 0, size = 10, search = "", orderStatus = "", paymentStatus = "", date = "" } = {}, { rejectWithValue }) => {
+    try { return await getAllOrdersAdmin(page, size, search, orderStatus, paymentStatus, date); }
+    catch (err) { return rejectWithValue(err.response?.data?.message ?? err.message); }
+  }
+);
+
+export const fetchAllPayments = createAsyncThunk(
+  "ordersPayments/fetchAllPayments",
+  async ({ page = 0, size = 10, search = "", status = "", method = "", date = "" } = {}, { rejectWithValue }) => {
+    try { return await getAllPaymentsAdmin(page, size, search, status, method, date); }
     catch (err) { return rejectWithValue(err.response?.data?.message ?? err.message); }
   }
 );
@@ -41,13 +49,7 @@ export const updateOrderStatus = createAsyncThunk(
   }
 );
 
-export const fetchAllPayments = createAsyncThunk(
-  "ordersPayments/fetchAllPayments",
-  async ({ page = 0, size = 10 } = {}, { rejectWithValue }) => {
-    try { return await getAllPaymentsAdmin(page, size); }
-    catch (err) { return rejectWithValue(err.response?.data?.message ?? err.message); }
-  }
-);
+
 
 export const fetchPaymentStats = createAsyncThunk(
   "ordersPayments/fetchPaymentStats",

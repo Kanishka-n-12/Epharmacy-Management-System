@@ -34,13 +34,13 @@ export default function PaymentPage() {
   const [methodError,  setMethodError]  = useState(null);
   const [showSuccess,  setShowSuccess]  = useState(false);
 
-  const cartCleared = useRef(false); // guard against double clear
+  const cartCleared = useRef(false); 
 
   useEffect(() => {
     if (orderId) dispatch(fetchBillSummary(orderId));
   }, [orderId, dispatch]);
 
-  // Safe clear — only runs once no matter how many times called
+  
   const safeClearCart = () => {
     if (cartCleared.current) return;
     cartCleared.current = true;
@@ -76,7 +76,7 @@ export default function PaymentPage() {
         orderId,
         userInfo: { phone },
         onSuccess: () => {
-          safeClearCart(); // guarded — won't double-fire
+          safeClearCart(); 
           setShowSuccess(true);
         },
         onFailure: (msg) => {
@@ -167,7 +167,7 @@ export default function PaymentPage() {
             setShowSuccess(false);
             dispatch(resetPayment());
             dispatch(setPendingOrderId(null));
-            cartCleared.current = false; // reset for next order session
+            cartCleared.current = false; 
             navigate("/");
           }}
         />
