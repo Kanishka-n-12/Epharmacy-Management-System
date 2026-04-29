@@ -64,7 +64,8 @@ export default function CategoryPage() {
 
   function handleAddToCart(productId, qty) {
     const product = categoryMedicines.find((p) => p.id === productId);
-    if (!product) return;
+    if (!product) 
+      return;
     dispatch(addOrUpdate({
       product: {
         id:          product.id,

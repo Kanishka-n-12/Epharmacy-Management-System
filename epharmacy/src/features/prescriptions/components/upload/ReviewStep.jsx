@@ -1,15 +1,7 @@
 // features/prescriptions/components/upload/ReviewStep.jsx
 import { useState } from "react";
 
-/**
- * Step 3 — review / correct the OCR-parsed data before submitting.
- *
- * Props:
- *   ocrResult  — OcrResultDTO from backend
- *   uploading  — boolean
- *   onSubmit(dto) — called with the final PrescriptionRequestDTO
- *   onBack()   — go back to drop zone
- */
+
 export default function ReviewStep({ ocrResult, uploading, onSubmit, onBack }) {
   const [form, setForm] = useState({
     doctorName:        ocrResult.doctorName        || "",
@@ -23,7 +15,6 @@ export default function ReviewStep({ ocrResult, uploading, onSubmit, onBack }) {
   const [errors, setErrors] = useState({});
   const [showRaw, setShowRaw] = useState(false);
 
-  /* ── Field update helpers ── */
   function setField(key, val) {
     setForm((prev) => ({ ...prev, [key]: val }));
     setErrors((prev) => ({ ...prev, [key]: "" }));
@@ -51,7 +42,7 @@ export default function ReviewStep({ ocrResult, uploading, onSubmit, onBack }) {
     });
   }
 
-  /* ── Validation ── */
+
   function validate() {
     const errs = {};
     if (!form.doctorName.trim())         errs.doctorName        = "Doctor name is required.";
@@ -94,7 +85,7 @@ export default function ReviewStep({ ocrResult, uploading, onSubmit, onBack }) {
   return (
     <div className="upload-modal__review-step">
 
-      {/* OCR confidence banner */}
+     
       <div className={`upload-modal__ocr-banner confidence-${ocrConfidence}`}>
         <span className="upload-modal__ocr-icon">
           {ocrConfidence === 3 ? "✅" : ocrConfidence >= 1 ? "⚠️" : "❌"}
@@ -115,12 +106,12 @@ export default function ReviewStep({ ocrResult, uploading, onSubmit, onBack }) {
         </button>
       </div>
 
-      {/* Raw OCR text panel */}
+     
       {showRaw && (
         <pre className="upload-modal__raw-text">{ocrResult.rawText || "(empty)"}</pre>
       )}
 
-      {/* ── Doctor fields ── */}
+     
       <div className="upload-modal__section-title">Doctor Details</div>
 
       <div className="upload-modal__field-row">

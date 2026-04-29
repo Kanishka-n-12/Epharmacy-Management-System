@@ -18,6 +18,7 @@ import OrderCard from "../components/OrderCard";
 import OrderDetailModal from "../components/OrderDetailModel";
 import CancelConfirmModal from "../components/CancelConfirmModel";
 import EmptyOrders from "../components/EmptyOrders";
+import Toast from "../../admin/components/Toast";
 
 import "../css/MyOrders.css";
 
@@ -32,6 +33,7 @@ export default function MyOrders() {
 
   const [detailOrder, setDetailOrder] = useState(null);   
   const [cancelTarget, setCancelTarget] = useState(null); 
+  const [toast, setToast] = useState(null);
 
   
   useEffect(() => {
@@ -40,15 +42,15 @@ export default function MyOrders() {
 
  
   useEffect(() => {
-    if (cancelSuccess) {
-      toast.success(cancelSuccess);
-      dispatch(clearCancelMessages());
-    }
-    if (cancelError) {
-      toast.error("Failed to cancel order. Please try again.");
-      dispatch(clearCancelMessages());
-    }
-  }, [cancelSuccess, cancelError, dispatch]);
+  if (cancelSuccess) {
+    setToast({ show: true, msg: cancelSuccess, type: "success" });
+    dispatch(clearCancelMessages());
+  }
+  if (cancelError) {
+    setToast({ show: true, msg: "Failed to cancel order. Please try again.", type: "error" });
+    dispatch(clearCancelMessages());
+  }
+}, [cancelSuccess, cancelError, dispatch]);
 
 
   const filtered = useMemo(() => {
@@ -86,6 +88,14 @@ export default function MyOrders() {
     
     <div className="my-orders-page">
 
+    {toast && (
+      <Toast
+        show={toast.show}
+        msg={toast.msg}
+        type={toast.type}
+        onClose={() => setToast(null)}
+      />
+    )}
      
       <div className="orders-breadcrumb">
         <div className="container">

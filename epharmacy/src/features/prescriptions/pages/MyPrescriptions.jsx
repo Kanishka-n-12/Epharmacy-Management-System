@@ -1,7 +1,9 @@
-// features/prescriptions/pages/MyPrescriptions.jsx
+
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+
+import Toast from "../../admin/components/Toast";
 
 import {
   fetchPrescriptions,
@@ -15,7 +17,6 @@ import {clearUploadMessages,
 
 import prescriptionService from "../services/prescriptionService";
 
-// ── Reused from existing features ──
 import ProfileSidebar from "../../users/components/ProfileSidebar";
 import LoadingState from "../../home/components/LoadingState";
 import ErrorState from "../../home/components/ErrorState";
@@ -23,7 +24,8 @@ import DataTable from "../../admin/components/DataTable";
 import DataRow from "../../admin/components/DataRow";
 import EmptyOrders from "../../orders/components/EmptyOrders";
 
-// ── Prescription-specific components ──
+
+
 import PrescriptionStatusBadge from "../components/PrescriptionStatusBadge";
 import PrescriptionDetailModal from "../components/PrescriptionDetailModal";
 import UploadPrescriptionModal from "../components/UploadPrescriptionModal";
@@ -58,42 +60,39 @@ export default function MyPrescriptions() {
   const [detailPrescription, setDetailPrescription] = useState(null);
   const [deleteTarget, setDeleteTarget]             = useState(null);
   const [showUploadModal, setShowUploadModal]       = useState(false);
+  const [toast, setToast]                           = useState(null);
 
-  /* ── Fetch on mount ── */
+  
   useEffect(() => {
     dispatch(fetchPrescriptions());
   }, [dispatch]);
 
-  /* ── Toast on upload result ── */
+ 
   useEffect(() => {
-    if (uploadSuccess) {
-      toast.success(uploadSuccess);
-      dispatch(clearUploadMessages());
-      setShowUploadModal(false);
-    }
-    if (uploadError) {
-      toast.error(
-        typeof uploadError === "string"
-          ? uploadError
-          : uploadError?.message || "Upload failed. Please try again."
-      );
-      dispatch(clearUploadMessages());
-    }
-  }, [uploadSuccess, uploadError, dispatch]);
+  if (uploadSuccess) {
+    setToast({ show: true, msg: uploadSuccess, type: "success" });
+    dispatch(clearUploadMessages());
+    setShowUploadModal(false);
+  }
+  if (uploadError) {
+    setToast({ show: true, msg: typeof uploadError === "string" ? uploadError : uploadError?.message || "Upload failed.", type: "error" });
+    dispatch(clearUploadMessages());
+  }
+}, [uploadSuccess, uploadError, dispatch]);
 
-  /* ── Toast on delete result ── */
+
   useEffect(() => {
-    if (deleteSuccess) {
-      toast.success(deleteSuccess);
-      dispatch(clearDeleteMessages());
-    }
-    if (deleteError) {
-      toast.error("Failed to delete prescription. Please try again.");
-      dispatch(clearDeleteMessages());
-    }
-  }, [deleteSuccess, deleteError, dispatch]);
+  if (deleteSuccess) {
+    setToast({ show: true, msg: deleteSuccess, type: "success" });
+    dispatch(clearDeleteMessages());
+  }
+  if (deleteError) {
+    setToast({ show: true, msg: "Failed to delete prescription. Please try again.", type: "error" });
+    dispatch(clearDeleteMessages());
+  }
+}, [deleteSuccess, deleteError, dispatch]);
 
-  /* ── Handlers ── */
+  
   function handleUploadSubmit(dto) {
     dispatch(uploadPrescription(dto));
   }
@@ -108,7 +107,7 @@ export default function MyPrescriptions() {
     });
   }
 
-  /* ── Row renderer for DataTable ── */
+
   function renderRow(prescription, index) {
     const {
       prescriptionId,
@@ -179,7 +178,16 @@ export default function MyPrescriptions() {
   return (
     <div className="my-prescriptions-page">
 
-      {/* ── Breadcrumb ── */}
+       {toast && (
+      <Toast
+        show={toast.show}
+        msg={toast.msg}
+        type={toast.type}
+        onClose={() => setToast(null)}
+      />
+    )}
+
+     
       <div className="prescriptions-breadcrumb">
         <div className="container">
           <Link to="/">Home</Link>
@@ -188,7 +196,7 @@ export default function MyPrescriptions() {
         </div>
       </div>
 
-      {/* ── Main ── */}
+   
       <section className="prescriptions-main">
         <div className="container">
 
@@ -198,16 +206,16 @@ export default function MyPrescriptions() {
           {!loading && !error && (
             <div className="prescriptions-layout">
 
-              {/* Sidebar */}
+              
               <aside className="prescriptions-sidebar-col">
                 <ProfileSidebar activeLink="prescriptions" />
               </aside>
 
-              {/* Content */}
+            
               <div className="prescriptions-content-col">
                 <div className="prescriptions-card">
 
-                  {/* Header */}
+                  
                   <div className="prescriptions-header">
                     <h5 className="prescriptions-title">MY PRESCRIPTIONS</h5>
                     <button
@@ -218,7 +226,7 @@ export default function MyPrescriptions() {
                     </button>
                   </div>
 
-                  {/* Empty state — reusing EmptyOrders */}
+                  
                   {prescriptions.length === 0 ? (
                     <EmptyOrders filtered={false} />
                   ) : (
@@ -238,7 +246,7 @@ export default function MyPrescriptions() {
         </div>
       </section>
 
-      {/* ── Upload Modal ── */}
+      
       {showUploadModal && (
         <UploadPrescriptionModal
           onSubmit={handleUploadSubmit}

@@ -1,13 +1,10 @@
-// features/profile/components/ProfileForm.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateProfile,  } from "../slice/profileThunks";
-import {clearProfileMessages} from "../slice/profileSlice";
-import AddressModal from "./AddressModal";
+import { updateProfile } from "../slice/profileThunks";
+import { clearProfileMessages } from "../slice/profileSlice";
 import ProfilePhotoUpload from "./ProfilePhotoUpload";
 import "../css/ProfileForm.css";
 
-/* ── Validation rules ── */
 const RULES = {
   username: {
     required: "Username is required.",
@@ -44,6 +41,12 @@ export default function ProfileForm() {
   const dispatch = useDispatch();
   const { profile, updating, successMsg, error } = useSelector((s) => s.profile);
 
+  const profileRef = useRef(profile);
+  console.log(profile);
+  useEffect(() => {
+    profileRef.current = profile;
+  }, [profile]);
+
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -54,9 +57,7 @@ export default function ProfileForm() {
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
-  const [addressOpen, setAddressOpen] = useState(false);
 
-  /* Pre-fill form when profile loads */
   useEffect(() => {
     if (profile) {
       setForm({
@@ -69,7 +70,6 @@ export default function ProfileForm() {
     }
   }, [profile]);
 
-  /* Auto-clear success/error messages */
   useEffect(() => {
     if (successMsg || error) {
       const t = setTimeout(() => dispatch(clearProfileMessages()), 3500);
@@ -80,8 +80,6 @@ export default function ProfileForm() {
   function handleChange(e) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-
-    // Re-validate live if already touched
     if (touched[name]) {
       setErrors((prev) => ({ ...prev, [name]: validate(name, value) }));
     }
@@ -94,13 +92,14 @@ export default function ProfileForm() {
   }
 
   function handleReset() {
-    if (profile) {
+    const p = profileRef.current;
+    if (p) {
       setForm({
-        username: profile.username || "",
-        email: profile.email || "",
-        firstName: profile.firstName || "",
-        lastName: profile.lastName || "",
-        gender: profile.gender?.toLowerCase() || "male",
+        username: p.username || "",
+        email: p.email || "",
+        firstName: p.firstName || "",
+        lastName: p.lastName || "",
+        gender: p.gender?.toLowerCase() || "male",
       });
     } else {
       setForm({ username: "", email: "", firstName: "", lastName: "", gender: "male" });
@@ -112,7 +111,6 @@ export default function ProfileForm() {
   function handleSubmit(e) {
     e.preventDefault();
 
-    // Validate all fields
     const newErrors = {};
     let allValid = true;
     Object.keys(RULES).forEach((field) => {
@@ -144,13 +142,11 @@ export default function ProfileForm() {
   return (
     <div className="profile-card">
       <div className="profile-card-inner">
-        {/* Photo */}
+
         <ProfilePhotoUpload />
 
-        {/* Form */}
         <form className="profile-form" onSubmit={handleSubmit} noValidate>
 
-          {/* Phone — read-only from profile */}
           <div className="field-group">
             <label className="field-label">
               PHONE NUMBER <span className="text-danger">*</span>
@@ -163,7 +159,6 @@ export default function ProfileForm() {
             />
           </div>
 
-          {/* Username */}
           <div className="field-group">
             <label className="field-label">
               USERNAME <span className="text-danger">*</span>
@@ -182,7 +177,6 @@ export default function ProfileForm() {
             )}
           </div>
 
-          {/* Email */}
           <div className="field-group">
             <label className="field-label">
               EMAIL <span className="text-danger">*</span>
@@ -201,7 +195,6 @@ export default function ProfileForm() {
             )}
           </div>
 
-          {/* First Name */}
           <div className="field-group">
             <label className="field-label">
               FIRST NAME <span className="text-danger">*</span>
@@ -220,7 +213,6 @@ export default function ProfileForm() {
             )}
           </div>
 
-          {/* Last Name */}
           <div className="field-group">
             <label className="field-label">
               LAST NAME <span className="text-danger">*</span>
@@ -239,7 +231,6 @@ export default function ProfileForm() {
             )}
           </div>
 
-          {/* Gender */}
           <div className="field-group">
             <label className="field-label">
               GENDER <span className="text-danger">*</span>
@@ -260,7 +251,6 @@ export default function ProfileForm() {
             </div>
           </div>
 
-          {/* Feedback messages */}
           {successMsg && (
             <div className="alert-success">✅ {successMsg}</div>
           )}
@@ -270,7 +260,6 @@ export default function ProfileForm() {
             </div>
           )}
 
-          {/* Buttons */}
           <div className="form-btns">
             <button
               type="button"
@@ -287,23 +276,10 @@ export default function ProfileForm() {
             >
               {updating ? "SAVING…" : "SAVE & UPDATE"}
             </button>
-
-            <button
-              type="button"
-              className="btn-manage"
-              onClick={() => setAddressOpen(true)}
-            >
-              + MANAGE ADDRESS
-            </button>
           </div>
+
         </form>
       </div>
-
-      {/* Address Modal */}
-      <AddressModal
-        open={addressOpen}
-        onClose={() => setAddressOpen(false)}
-      />
     </div>
   );
 }

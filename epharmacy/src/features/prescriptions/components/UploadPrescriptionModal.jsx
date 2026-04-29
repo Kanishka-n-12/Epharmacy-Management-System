@@ -10,17 +10,7 @@ import ReviewStep    from "./upload/ReviewStep";
 
 import "../css/UploadPrescriptionModal.css"
 
-/**
- * Three-step modal:
- *  1. DropZone   — user drops / selects file
- *  2. Scanning   — OCR in progress (or error)
- *  3. Review     — pre-filled editable form
- *
- * Props:
- *   onSubmit(dto)  — called with the final PrescriptionRequestDTO
- *   onClose()      — close the modal
- *   uploading      — boolean from redux (final submit in progress)
- */
+
 export default function UploadPrescriptionModal({ onSubmit, onClose, uploading }) {
   const dispatch = useDispatch();
   const { scanning, ocrResult, scanError } = useSelector(
@@ -28,27 +18,27 @@ export default function UploadPrescriptionModal({ onSubmit, onClose, uploading }
   );
   const overlayRef = useRef(null);
 
-  /* Clear OCR state when modal unmounts */
+
   useEffect(() => {
     return () => dispatch(clearOcrResult());
   }, [dispatch]);
 
-  /* Close on overlay click */
+  
   function handleOverlayClick(e) {
     if (e.target === overlayRef.current) onClose();
   }
 
-  /* Step 1 → 2: user picked a file */
+  
   function handleFile(file) {
     dispatch(scanPrescription(file));
   }
 
-  /* Error retry → back to step 1 */
+  
   function handleRetry() {
     dispatch(clearOcrResult());
   }
 
-  /* Determine which step to show */
+ 
   const step = ocrResult ? "review" : scanning || scanError ? "scanning" : "drop";
 
   return (
@@ -59,7 +49,7 @@ export default function UploadPrescriptionModal({ onSubmit, onClose, uploading }
     >
       <div className="upload-modal__dialog" role="dialog" aria-modal="true">
 
-        {/* ── Header ── */}
+    
         <div className="upload-modal__header">
           <div className="upload-modal__header-left">
             <div>
@@ -103,7 +93,7 @@ export default function UploadPrescriptionModal({ onSubmit, onClose, uploading }
           })}
         </div>
 
-        {/* ── Body ── */}
+ 
         <div className="upload-modal__body">
           {step === "drop" && (
             <DropZoneStep onFile={handleFile} />

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import Toast from "../../admin/components/Toast"
 
 import {
   fetchBillSummary,
@@ -33,6 +34,7 @@ export default function PaymentPage() {
   const [chosenMethod, setChosenMethod] = useState(null);
   const [methodError,  setMethodError]  = useState(null);
   const [showSuccess,  setShowSuccess]  = useState(false);
+  const [toast, setToast] = useState(null);
 
   const cartCleared = useRef(false); 
 
@@ -48,16 +50,30 @@ export default function PaymentPage() {
   };
 
   useEffect(() => {
-    if (successMessage) {
-      safeClearCart();
+  if (successMessage) {
+    const isCOD = paymentResult?.paymentStatus === "PENDING";
+
+    safeClearCart();
+    dispatch(clearPaymentMessages());
+
+    if (isCOD) {
+      setToast({ msg: "Order placed successfully! Pay on delivery.", type: "success" });
+      dispatch(resetPayment());
+      cartCleared.current = false;
+      setTimeout(() => {
+        dispatch(setPendingOrderId(null)); 
+        navigate("/orders");
+      }, 2000);
+    } else {
       setShowSuccess(true);
-      dispatch(clearPaymentMessages());
     }
-    if (error) {
-      setMethodError(error);
-      dispatch(clearPaymentMessages());
-    }
-  }, [successMessage, error, dispatch]);
+  }
+
+  if (error) {
+    setMethodError(error);
+    dispatch(clearPaymentMessages());
+  }
+}, [successMessage, error, dispatch]);
 
   const handleMethodSelect = (method) => {
     setChosenMethod(method);
@@ -90,7 +106,7 @@ export default function PaymentPage() {
       makeCodOrUpiPayment({
         orderId,
         paymentMethod: chosenMethod === "Cash on Delivery" ? "cod" : "upi",
-        transactionId: null,
+        transactionId: chosenMethod === "Cash on Delivery" ? `COD-${orderId}` : null,
       })
     );
   };
@@ -109,6 +125,14 @@ export default function PaymentPage() {
   return (
     <div className="payment-page">
       <div className="container">
+        {toast && (
+  <Toast
+    show={true}
+    msg={toast.msg}
+    type={toast.type}
+    onClose={() => setToast(null)}
+  />
+)}
 
         <ProgressSteps current={2} />
 
